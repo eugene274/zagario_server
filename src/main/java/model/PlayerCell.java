@@ -6,7 +6,10 @@ import utils.SequentialIDGenerator;
 /**
  * @author apomosov
  */
-public class PlayerCell extends Cell {
+public class PlayerCell
+        extends Cell
+        implements Eatable,Eater
+{
   private final int id;
 
   public PlayerCell(int id, int x, int y) {

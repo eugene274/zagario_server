@@ -6,6 +6,7 @@ import main.Service;
 import messageSystem.Abonent;
 import messageSystem.Message;
 import messageSystem.MessageSystem;
+import messageSystem.messages.ReplicateLeaderBoardMsg;
 import messageSystem.messages.ReplicateMsg;
 import network.ClientConnectionServer;
 import org.apache.logging.log4j.LogManager;
@@ -43,10 +44,19 @@ public class Mechanics extends Service implements Tickable {
       e.printStackTrace();
     }
 
-    log.info("Start replication");
+    //TODO mechanics
+
     @NotNull MessageSystem messageSystem = ApplicationContext.instance().get(MessageSystem.class);
-    Message message = new ReplicateMsg(this.getAddress());
-    messageSystem.sendMessage(message);
+
+    Message replicateMsg = new ReplicateMsg(this.getAddress());
+	  ReplicateLeaderBoardMsg replicateLBMsg = new ReplicateLeaderBoardMsg(this.getAddress());
+
+    // LeaderBoard Replication trigger
+    log.info("Start LeaderBoard replication");
+	  messageSystem.sendMessage(replicateLBMsg);
+
+    log.info("Start replication");
+    messageSystem.sendMessage(replicateMsg);
 
     //execute all messages from queue
     messageSystem.execForService(this);

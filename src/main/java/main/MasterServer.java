@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import replication.FullStateReplicator;
+import replication.LeaderBoardReplicator;
 import replication.Replicator;
 import ticker.Ticker;
 import utils.IDGenerator;
@@ -33,6 +34,11 @@ public class MasterServer {
     ApplicationContext.instance().put(Replicator.class, new FullStateReplicator());
     ApplicationContext.instance().put(IDGenerator.class, new SequentialIDGenerator());
 
+    //TODO Add custom stuff here
+    ApplicationContext.instance().put(LeaderBoardReplicator.class, new LeaderBoardReplicator());
+
+
+
     MessageSystem messageSystem = new MessageSystem();
     ApplicationContext.instance().put(MessageSystem.class, messageSystem);
 
@@ -42,6 +48,7 @@ public class MasterServer {
     messageSystem.registerService(AccountServer.class, new AccountServer(8080));
     messageSystem.registerService(ClientConnectionServer.class, new ClientConnectionServer(7000));
     messageSystem.getServices().forEach(Service::start);
+
 
     for (Service service : messageSystem.getServices()) {
       service.join();
