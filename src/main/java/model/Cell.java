@@ -17,8 +17,7 @@ public abstract class Cell {
   public Cell(int x, int y, int mass) {
     this.x = x;
     this.y = y;
-    this.mass = mass;
-    updateRadius();
+    setMass(mass);
   }
 
   public int getX() {
@@ -48,6 +47,13 @@ public abstract class Cell {
   public void setMass(int mass) {
     this.mass = mass;
     updateRadius();
+  }
+
+  public int distance(Cell to){
+    return (int) Math.sqrt(
+      Math.pow(getX() - to.getX(), 2.0) +
+              Math.pow(getY() - to.getY(), 2.0)
+    );
   }
 
   private void updateRadius(){
