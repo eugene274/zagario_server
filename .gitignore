@@ -12,7 +12,6 @@
 *.db
 
 # sensitive data (dblogin-pass)
-src/main/resources/
 src/test/resources/
 
 target/
@@ -24,3 +23,4 @@ logs/
 hs_err_pid*
 
 /.idea/
+/src/main/resources/hibernate.cfg.xml
