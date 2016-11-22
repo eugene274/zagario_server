@@ -1,7 +1,7 @@
 package model;
 
-import main.ApplicationContext;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.TestOnly;
 import utils.IDGenerator;
 import utils.SequentialIDGenerator;
 
@@ -59,19 +59,25 @@ public class Player {
         '}';
   }
 
-  // TODO initialize score
-  private int score = 0;
+  private int score = getAllMass();
 
   private int getAllMass(){
-    // TODO
-    return 0;
+      return cells.stream().map(Cell::getMass).reduce(Math::addExact).orElse(0);
   }
 
   public void updateScore(){
-    /// TODO
+      int mass = getAllMass();
+      if (mass > score) {
+          score = mass;
+      }
   }
 
   public int getScore() {
     return score;
+  }
+
+  @TestOnly
+  public void setScore(int score) {
+      this.score = score;
   }
 }

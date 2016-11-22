@@ -1,10 +1,10 @@
 package model;
 
-import main.ApplicationContext;
 import org.jetbrains.annotations.NotNull;
 import utils.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -50,6 +50,15 @@ public class GameSessionImpl implements GameSession {
   @Override
   public Field getField() {
     return field;
+  }
+
+  @Override
+  public String[] getLeaders() {
+      return players.stream()
+              .sorted(Comparator.comparing(Player::getScore).reversed())
+              .limit(10)
+              .map(player -> player.getName()) //(Player::getName)
+              .toArray(String[]::new);
   }
 
   @Override
