@@ -11,7 +11,7 @@ import java.util.List;
  *
  * @author Alpi
  */
-public interface MatchMaker {
+public interface IMatchMaker {
   /**
    * Searches available game session or creates new one
    * @param player player to join the game session

@@ -1,8 +1,9 @@
 package main;
 
 import accountserver.AccountServer;
-import matchmaker.MatchMaker;
-import matchmaker.MatchMakerImpl;
+import matchmaker.IMatchMaker;
+import matchmaker.MatchMakerMultiplayer;
+import matchmaker.MatchMakerSingleplayer;
 import messageSystem.MessageSystem;
 import network.ClientConnectionServer;
 import mechanics.Mechanics;
@@ -13,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import replication.FullStateReplicator;
 import replication.LeaderBoardReplicator;
 import replication.Replicator;
-import ticker.Ticker;
 import utils.IDGenerator;
 import utils.SequentialIDGenerator;
 
@@ -29,13 +29,14 @@ public class MasterServer {
   private void start() throws ExecutionException, InterruptedException {
     log.info("MasterServer started");
     //TODO RK3 configure server parameters
-    ApplicationContext.instance().put(MatchMaker.class, new MatchMakerImpl());
+    ApplicationContext.instance().put(IMatchMaker.class, new MatchMakerSingleplayer());
     ApplicationContext.instance().put(ClientConnections.class, new ClientConnections());
     ApplicationContext.instance().put(Replicator.class, new FullStateReplicator());
     ApplicationContext.instance().put(IDGenerator.class, new SequentialIDGenerator());
 
     //TODO Add custom stuff here
     ApplicationContext.instance().put(LeaderBoardReplicator.class, new LeaderBoardReplicator());
+    ApplicationContext.instance().put(IMatchMaker.class, new MatchMakerMultiplayer());
 
 
 

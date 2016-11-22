@@ -1,22 +1,18 @@
 package replication;
 
 import main.ApplicationContext;
-import matchmaker.MatchMaker;
+import matchmaker.IMatchMaker;
 import model.GameSession;
 import model.Player;
 import model.PlayerCell;
 import network.ClientConnections;
 import network.packets.PacketReplicate;
 import org.eclipse.jetty.websocket.api.Session;
-import protocol.CommandReplicate;
 import protocol.model.Cell;
 import protocol.model.Food;
-import utils.JSONHelper;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * @author Alpi
@@ -25,7 +21,7 @@ import java.util.stream.Stream;
 public class FullStateReplicator implements Replicator {
   @Override
   public void replicate() {
-    for (GameSession gameSession : ApplicationContext.instance().get(MatchMaker.class).getActiveGameSessions()) {
+    for (GameSession gameSession : ApplicationContext.instance().get(IMatchMaker.class).getActiveGameSessions()) {
       Food[] food = new Food[0];//TODO food and viruses
       int numberOfCellsInSession = 0;
       for (Player player : gameSession.getPlayers()) {
@@ -50,7 +46,7 @@ public class FullStateReplicator implements Replicator {
       }
     }
 
-    /*ApplicationContext.instance().get(MatchMaker.class).getActiveGameSessions().stream().flatMap(
+    /*ApplicationContext.instance().get(IMatchMaker.class).getActiveGameSessions().stream().flatMap(
         gameSession -> gameSession.getPlayers().stream().flatMap(
             player -> player.getCells().stream()
         )
