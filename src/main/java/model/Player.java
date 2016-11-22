@@ -58,4 +58,20 @@ public class Player {
         "name='" + name + '\'' +
         '}';
   }
+
+  // TODO initialize score
+  private int score = 0;
+
+  private int getAllMass(){
+    // TODO
+    return 0;
+  }
+
+  public void updateScore(){
+    /// TODO
+  }
+
+  public int getScore() {
+    return score;
+  }
 }
