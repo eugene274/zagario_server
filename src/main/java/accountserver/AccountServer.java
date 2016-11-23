@@ -3,7 +3,6 @@ package accountserver;
 import accountserver.api.AuthenticationFilter;
 import main.ApplicationContext;
 import main.Service;
-import messageSystem.Address;
 import messageSystem.MessageSystem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,7 +55,10 @@ public class AccountServer extends Service {
 
   @Override
   public void run() {
-    startApi();
+    main.AccountServer server = new main.AccountServer();
+    server.start();
+    log.info(getAddress() + " started on port " + port);
+    //noinspection InfiniteLoopStatement
     while (true) {
       ApplicationContext.instance().get(MessageSystem.class).execForService(this);
     }
