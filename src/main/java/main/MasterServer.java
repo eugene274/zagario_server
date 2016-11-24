@@ -3,6 +3,7 @@ package main;
 import accountserver.AccountServer;
 import configuration.IConfiguration;
 import configuration.IniConfiguration;
+import configuration.NoConfiguration;
 import matchmaker.IMatchMaker;
 import matchmaker.MatchMakerSingleplayer;
 import mechanics.Mechanics;
@@ -78,14 +79,13 @@ public class MasterServer {
   }
 
   public static void main(@NotNull String[] args) throws ExecutionException, InterruptedException {
-    IniConfiguration configuration;
+    IConfiguration configuration;
     try {
       if(args.length > 1) configuration = new IniConfiguration(args[1]);
-      else configuration = new IniConfiguration("src/main/resources/config.ini");
+      else configuration = new IniConfiguration("config.ini");
     }
     catch (IOException e) {
-      e.printStackTrace();
-      return;
+      configuration = new NoConfiguration();
     }
 
     MasterServer server = new MasterServer(configuration);
