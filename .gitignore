@@ -12,8 +12,6 @@
 # database files
 *.db
 
-# sensitive data (dblogin-pass)
-src/test/resources/
 
 target/
 logs/
@@ -24,6 +22,9 @@ logs/
 hs_err_pid*
 
 /.idea/
+
 /src/main/resources/hibernate.cfg.xml
+/src/test/resources/hibernate.cfg.xml
+
 !/zagar-client-1.0.jar
 .gitmodules

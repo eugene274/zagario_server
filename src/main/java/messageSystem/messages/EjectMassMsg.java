@@ -15,11 +15,12 @@ public class EjectMassMsg extends Message {
 
     public EjectMassMsg(@org.jetbrains.annotations.NotNull Player player) {
         super(null, ApplicationContext.instance().get(MessageSystem.class).getService(Mechanics.class).getAddress());
-        Message.log.info("Command eject mass received for " + player);
+
     }
 
     @Override
     public void exec(Abonent abonent) {
         //TODO
+        Message.log.info("Command eject mass received for " + player);
     }
 }
