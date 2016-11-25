@@ -5,6 +5,7 @@ import configuration.IConfiguration;
 import configuration.IniConfiguration;
 import configuration.NoConfiguration;
 import matchmaker.IMatchMaker;
+import matchmaker.MatchMakerMultiplayer;
 import matchmaker.MatchMakerSingleplayer;
 import mechanics.Mechanics;
 import messageSystem.MessageSystem;
@@ -52,7 +53,6 @@ public class MasterServer {
     ApplicationContext.instance().put(MessageSystem.class, messageSystem);
 
     //TODO Add custom stuff here
-    ApplicationContext.instance().put(LeaderBoardReplicator.class, new LeaderBoardReplicator());
     try {
       ApplicationContext.instance().put(IMatchMaker.class, Class.forName(configuration.getMatchMaker()).newInstance());
       ApplicationContext.instance().put(Replicator.class, Class.forName(configuration.getReplicator()).newInstance());
