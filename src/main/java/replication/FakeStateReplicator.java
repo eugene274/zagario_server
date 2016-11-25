@@ -45,7 +45,7 @@ public class FakeStateReplicator implements Replicator {
   @Override
   public void replicate() {
     StringBuilder srcBuilder = new StringBuilder();
-    try (FileInputStream stream = new FileInputStream("fake_replica.json")) {
+    try (FileInputStream stream = new FileInputStream("src/test/resources/fake_replica.json")) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
       srcBuilder.append(reader.readLine());
     } catch (IOException e) {
