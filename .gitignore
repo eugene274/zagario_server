@@ -5,6 +5,7 @@
 
 # Package Files #
 *.jar
+
 *.war
 *.ear
 
@@ -24,3 +25,5 @@ hs_err_pid*
 
 /.idea/
 /src/main/resources/hibernate.cfg.xml
+!/zagar-client-1.0.jar
+.gitmodules
