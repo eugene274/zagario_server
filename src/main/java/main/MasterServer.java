@@ -4,15 +4,14 @@ import accountserver.AccountServer;
 import matchmaker.IMatchMaker;
 import matchmaker.MatchMakerMultiplayer;
 import matchmaker.MatchMakerSingleplayer;
+import mechanics.Mechanics;
 import messageSystem.MessageSystem;
 import network.ClientConnectionServer;
-import mechanics.Mechanics;
 import network.ClientConnections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import replication.FullStateReplicator;
-import replication.LeaderBoardReplicator;
 import replication.Replicator;
 import utils.IDGenerator;
 import utils.SequentialIDGenerator;
@@ -35,7 +34,6 @@ public class MasterServer {
     ApplicationContext.instance().put(IDGenerator.class, new SequentialIDGenerator());
 
     //TODO Add custom stuff here
-    ApplicationContext.instance().put(LeaderBoardReplicator.class, new LeaderBoardReplicator());
     ApplicationContext.instance().put(IMatchMaker.class, new MatchMakerMultiplayer());
 
 

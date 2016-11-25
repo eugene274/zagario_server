@@ -6,6 +6,7 @@ import model.GameSession;
 import model.Player;
 import model.PlayerCell;
 import network.ClientConnections;
+import network.packets.PacketLeaderBoard;
 import network.packets.PacketReplicate;
 import org.eclipse.jetty.websocket.api.Session;
 import protocol.model.Cell;
@@ -38,6 +39,7 @@ public class FullStateReplicator implements Replicator {
       for (Map.Entry<Player, Session> connection : ApplicationContext.instance().get(ClientConnections.class).getConnections()) {
         if (gameSession.getPlayers().contains(connection.getKey())) {
           try {
+            new PacketLeaderBoard(gameSession.getLeaders()).write(connection.getValue());
             new PacketReplicate(cells, food).write(connection.getValue());
           } catch (IOException e) {
             e.printStackTrace();
