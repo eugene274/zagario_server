@@ -1,3 +1,101 @@
 {
-
+  "cells": [
+    {
+      "cellId": 0,
+      "playerId": 0,
+      "x": 623,
+      "y": 480,
+      "isVirus": false,
+      "size": 149
+    },
+    {
+      "cellId": 1,
+      "playerId": 1,
+      "x": 477,
+      "y": 661,
+      "isVirus": true,
+      "size": 63
+    },
+    {
+      "cellId": 2,
+      "playerId": 2,
+      "x": 208,
+      "y": 342,
+      "isVirus": true,
+      "size": 188
+    },
+    {
+      "cellId": 3,
+      "playerId": 3,
+      "x": 405,
+      "y": 471,
+      "isVirus": false,
+      "size": 134
+    },
+    {
+      "cellId": 4,
+      "playerId": 4,
+      "x": 325,
+      "y": 358,
+      "isVirus": false,
+      "size": 50
+    },
+    {
+      "cellId": 5,
+      "playerId": 5,
+      "x": 354,
+      "y": 439,
+      "isVirus": true,
+      "size": 113
+    },
+    {
+      "cellId": 6,
+      "playerId": 6,
+      "x": 244,
+      "y": 204,
+      "isVirus": false,
+      "size": 104
+    },
+    {
+      "cellId": 7,
+      "playerId": 7,
+      "x": 223,
+      "y": 242,
+      "isVirus": true,
+      "size": 151
+    },
+    {
+      "cellId": 8,
+      "playerId": 8,
+      "x": 319,
+      "y": 603,
+      "isVirus": false,
+      "size": 108
+    },
+    {
+      "cellId": 9,
+      "playerId": 9,
+      "x": 367,
+      "y": 514,
+      "isVirus": false,
+      "size": 103
+    },
+    {
+      "cellId": 10,
+      "playerId": 10,
+      "x": 667,
+      "y": 264,
+      "isVirus": false,
+      "size": 168
+    },
+    {
+      "cellId": 11,
+      "playerId": 11,
+      "x": 200,
+      "y": 652,
+      "isVirus": true,
+      "size": 131
+    }
+  ],
+  "foods": []
 }

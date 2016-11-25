@@ -15,13 +15,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by eugene on 11/25/16.
  */
 @TestOnly
 public class FakeStateReplicator implements Replicator {
-  private static class CellsFoods {
+  public static class CellsFoods {
     @NotNull private protocol.model.Cell[] cells;
     @NotNull private protocol.model.Food[] foods;
 
@@ -44,10 +45,10 @@ public class FakeStateReplicator implements Replicator {
 
   @Override
   public void replicate() {
-    StringBuilder srcBuilder = new StringBuilder();
+    String src;
     try (FileInputStream stream = new FileInputStream("src/test/resources/fake_replica.json")) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-      srcBuilder.append(reader.readLine());
+      src = reader.lines().collect(Collectors.joining());
     } catch (IOException e) {
       e.printStackTrace();
       return;
@@ -55,7 +56,7 @@ public class FakeStateReplicator implements Replicator {
 
     @NotNull CellsFoods cellsFoods;
     try {
-      cellsFoods = JSONHelper.fromJSON(srcBuilder.toString(), CellsFoods.class);
+      cellsFoods = JSONHelper.fromJSON(src, CellsFoods.class);
     } catch (JSONDeserializationException e) {
       e.printStackTrace();
       return;
