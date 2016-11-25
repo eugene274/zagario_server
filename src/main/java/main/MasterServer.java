@@ -1,6 +1,9 @@
 package main;
 
 import accountserver.AccountServer;
+import configuration.IConfiguration;
+import configuration.IniConfiguration;
+import configuration.NoConfiguration;
 import matchmaker.IMatchMaker;
 import matchmaker.MatchMakerMultiplayer;
 import matchmaker.MatchMakerSingleplayer;
@@ -16,14 +19,22 @@ import replication.Replicator;
 import utils.IDGenerator;
 import utils.SequentialIDGenerator;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Created by apomosov on 14.05.16.
  */
 public class MasterServer {
+  private IConfiguration configuration;
+
   @NotNull
   private final static Logger log = LogManager.getLogger(MasterServer.class);
+
+  public MasterServer(IConfiguration configuration) {
+    this.configuration = configuration;
+  }
 
   private void start() throws ExecutionException, InterruptedException {
     log.info("MasterServer started");
@@ -41,13 +52,30 @@ public class MasterServer {
     MessageSystem messageSystem = new MessageSystem();
     ApplicationContext.instance().put(MessageSystem.class, messageSystem);
 
-    Mechanics mechanics = new Mechanics();
+    //TODO Add custom stuff here
+    try {
+      ApplicationContext.instance().put(IMatchMaker.class, Class.forName(configuration.getMatchMaker()).newInstance());
+      ApplicationContext.instance().put(Replicator.class, Class.forName(configuration.getReplicator()).newInstance());
+    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+      e.printStackTrace();
+      System.exit(1);
+      return;
+    }
 
-    messageSystem.registerService(Mechanics.class, mechanics);
-    messageSystem.registerService(AccountServer.class, new AccountServer(8080));
-    messageSystem.registerService(ClientConnectionServer.class, new ClientConnectionServer(7000));
+
+    try {
+      messageSystem.registerService(Mechanics.class, (Service) Class.forName(configuration.getServices()[0]).newInstance());
+      messageSystem.registerService(AccountServer.class,
+              (Service) Class.forName(configuration.getServices()[1]).getConstructor(Integer.class).newInstance(configuration.getPort()));
+      messageSystem.registerService(ClientConnectionServer.class,
+              (Service) Class.forName(configuration.getServices()[2]).getConstructor(Integer.class).newInstance(configuration.getWSPort()));
+    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException e) {
+      e.printStackTrace();
+      System.exit(1);
+      return;
+    }
+
     messageSystem.getServices().forEach(Service::start);
-
 
     for (Service service : messageSystem.getServices()) {
       service.join();
@@ -55,7 +83,16 @@ public class MasterServer {
   }
 
   public static void main(@NotNull String[] args) throws ExecutionException, InterruptedException {
-    MasterServer server = new MasterServer();
+    IConfiguration configuration;
+    try {
+      if(args.length > 1) configuration = new IniConfiguration(args[1]);
+      else configuration = new IniConfiguration("config.ini");
+    }
+    catch (IOException e) {
+      configuration = new NoConfiguration();
+    }
+
+    MasterServer server = new MasterServer(configuration);
     server.start();
   }
 }

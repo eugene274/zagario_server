@@ -18,6 +18,7 @@ public class MoveMsg extends Message {
                 .get(MessageSystem.class)
                 .getService(ClientConnectionServer.class)
                 .getAddress());
+        this.player = player;
     }
 
     @Override

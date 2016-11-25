@@ -19,7 +19,7 @@ public class ClientConnectionServer extends Service {
   private final static Logger log = LogManager.getLogger(MasterServer.class);
   private final int port;
 
-  public ClientConnectionServer(int port) {
+  public ClientConnectionServer(Integer port) {
     super("client_connection_service");
     this.port = port;
   }

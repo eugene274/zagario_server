@@ -15,7 +15,7 @@ public class EjectMassMsg extends Message {
 
     public EjectMassMsg(@org.jetbrains.annotations.NotNull Player player) {
         super(null, ApplicationContext.instance().get(MessageSystem.class).getService(Mechanics.class).getAddress());
-
+        this.player = player;
     }
 
     @Override
