@@ -58,6 +58,12 @@ public class AccountServer extends Service {
     startApi();
     while (true) {
       ApplicationContext.instance().get(MessageSystem.class).execForService(this);
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        log.error("INTERRUPTED");
+        return;
+      }
     }
   }
 }
