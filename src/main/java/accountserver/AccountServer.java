@@ -57,11 +57,10 @@ public class AccountServer extends Service {
   public void run() {
     startApi();
     while (true) {
-      ApplicationContext.instance().get(MessageSystem.class).execForService(this);
       try {
-        Thread.sleep(100);
+        ApplicationContext.instance().get(MessageSystem.class).execOneForService(this);
       } catch (InterruptedException e) {
-        log.error("INTERRUPTED");
+        e.printStackTrace();
         return;
       }
     }
