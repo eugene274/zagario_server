@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -18,7 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public final class MessageSystem {
   private final static Logger log = LogManager.getLogger(MessageSystem.class);
 
-  private final Map<Address, BlockingQueue<Message>> messages = new HashMap<>();
+  private final Map<Address, Queue<Message>> messages = new HashMap<>();
   private final @NotNull Map<Class<?>, Service> services = new ConcurrentHashMap<>();
 
 
@@ -44,7 +45,7 @@ public final class MessageSystem {
   }
 
   public void execForService(Service service) {
-    BlockingQueue<Message> queue = messages.get(service.getAddress());
+    Queue<Message> queue = messages.get(service.getAddress());
     while (!queue.isEmpty()) {
       Message message = queue.poll();
       message.exec(service);
@@ -52,7 +53,7 @@ public final class MessageSystem {
   }
 
   public void execOneForService(Service service) throws InterruptedException {
-    BlockingQueue<Message> queue = messages.get(service.getAddress());
+    BlockingQueue<Message> queue = (BlockingQueue<Message>) messages.get(service.getAddress());
     queue.take().exec(service);
   }
 }

@@ -20,7 +20,6 @@ public class SplitMsg extends Message {
 
     @Override
     public void exec(Abonent abonent) {
-        //TODO
-        Message.log.info("Command split recieved for " + player);
+        ((Mechanics) abonent).split(player);
     }
 }

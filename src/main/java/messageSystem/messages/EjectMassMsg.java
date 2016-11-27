@@ -20,7 +20,6 @@ public class EjectMassMsg extends Message {
 
     @Override
     public void exec(Abonent abonent) {
-        //TODO
-        Message.log.info("Command eject mass received for " + player);
+        ((Mechanics) abonent).eject(player);
     }
 }

@@ -1,6 +1,7 @@
 package network.handlers;
 
 import main.ApplicationContext;
+import messageSystem.Message;
 import messageSystem.MessageSystem;
 import messageSystem.messages.MoveMsg;
 import model.Player;
@@ -28,7 +29,8 @@ public class PacketHandlerMove {
             .get(ClientConnections.class).getConnections();
       for(Map.Entry<Player,Session> conn : connections){
           if (conn.getValue().equals(session)){
-              ApplicationContext.instance().get(MessageSystem.class).sendMessage(new MoveMsg(conn.getKey()));
+              Message message = new MoveMsg(conn.getKey(), commandMove.getDx(), commandMove.getDy());
+              ApplicationContext.instance().get(MessageSystem.class).sendMessage(message);
               return;
           }
       }

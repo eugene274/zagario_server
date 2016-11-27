@@ -5,6 +5,7 @@ import main.Service;
 import messageSystem.Message;
 import messageSystem.MessageSystem;
 import messageSystem.messages.ReplicateMsg;
+import model.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -31,14 +32,6 @@ public class Mechanics extends Service implements Tickable {
 
   @Override
   public void tick(long elapsedNanos) {
-    try {
-      Thread.sleep(1500);
-    } catch (InterruptedException e) {
-      log.error(e);
-      Thread.currentThread().interrupt();
-      e.printStackTrace();
-    }
-
     //TODO mechanics
 
     @NotNull MessageSystem messageSystem = ApplicationContext.instance().get(MessageSystem.class);
@@ -50,5 +43,20 @@ public class Mechanics extends Service implements Tickable {
 
     //execute all messages from queue
     messageSystem.execForService(this);
+  }
+
+  public void move(Player player, float dx, float dy){
+    // TODO
+    log.info(player + " is about to move");
+  }
+
+  public void eject(Player player){
+    // TODO
+    log.info(player + " is about to eject");
+  }
+
+  public void split(Player player){
+    // TODO
+    log.info(player + " is about to split");
   }
 }
