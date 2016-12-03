@@ -28,3 +28,4 @@ hs_err_pid*
 
 !/zagar-client-1.0.jar
 .gitmodules
+/server.iml
