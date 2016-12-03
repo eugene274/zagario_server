@@ -42,6 +42,16 @@ public class MatchMakerSingleplayer implements IMatchMaker {
     return new ArrayList<>(activeGameSessions);
   }
 
+  @Override
+  public GameSession getHostGameSession(Player player) {
+    for (GameSession gameSession : activeGameSessions){
+      if(gameSession.getPlayers().contains(player)){
+        return gameSession;
+      }
+    }
+    return null;
+  }
+
   /**
    * @return new GameSession
    */

@@ -23,4 +23,6 @@ public interface IMatchMaker {
    */
   @NotNull
   List<GameSession> getActiveGameSessions();
+
+  GameSession getHostGameSession(Player player);
 }
