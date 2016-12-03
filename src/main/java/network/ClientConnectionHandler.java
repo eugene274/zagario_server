@@ -53,8 +53,9 @@ public class ClientConnectionHandler extends WebSocketAdapter {
 
   @Override
   public void onWebSocketError(@NotNull Throwable cause) {
-    super.onWebSocketError(cause);
-    cause.printStackTrace(System.err);
+//    super.onWebSocketError(cause);
+    log.warn(cause.getMessage());
+//    cause.printStackTrace(System.err);
   }
 
   public void handlePacket(@NotNull String msg) {
