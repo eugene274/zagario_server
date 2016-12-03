@@ -5,6 +5,7 @@ import matchmaker.IMatchMaker;
 import model.GameSession;
 import model.Player;
 import model.PlayerCell;
+import model.Virus;
 import network.ClientConnections;
 import network.packets.PacketLeaderBoard;
 import network.packets.PacketReplicate;
@@ -23,12 +24,12 @@ public class FullStateReplicator implements Replicator {
   @Override
   public void replicate() {
     for (GameSession gameSession : ApplicationContext.instance().get(IMatchMaker.class).getActiveGameSessions()) {
-      Food[] food = new Food[0];//TODO food and viruses
       int numberOfCellsInSession = 0;
       for (Player player : gameSession.getPlayers()) {
         numberOfCellsInSession += player.getCells().size();
       }
-      Cell[] cells = new Cell[numberOfCellsInSession];
+      Cell[] cells = new Cell[numberOfCellsInSession + gameSession.getField().getViruses().size()];
+
       int i = 0;
       for (Player player : gameSession.getPlayers()) {
         for (PlayerCell playerCell : player.getCells()) {
@@ -36,6 +37,17 @@ public class FullStateReplicator implements Replicator {
           i++;
         }
       }
+      for (Virus virus : gameSession.getField().getViruses()){
+        cells[i] = new Cell(-1, -1, true, virus.getMass(), virus.getX(), virus.getY());
+        i++;
+      }
+
+      i = 0;
+      Food[] food = new Food[gameSession.getField().getFoods().size()];
+      for (model.Food f : gameSession.getField().getFoods()){
+        food[i] = new Food(f.getX(),f.getY());
+      }
+
       for (Map.Entry<Player, Session> connection : ApplicationContext.instance().get(ClientConnections.class).getConnections()) {
         if (gameSession.getPlayers().contains(connection.getKey())) {
           try {
