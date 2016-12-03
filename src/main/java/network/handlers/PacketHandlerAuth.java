@@ -34,7 +34,7 @@ public class PacketHandlerAuth {
       try {
         Player player = new Player(Player.idGenerator.next(), commandAuth.getLogin());
         ApplicationContext.instance().get(ClientConnections.class).registerConnection(player, session);
-        new PacketAuthOk().write(session);
+        new PacketAuthOk(player.getId()).write(session);
         ApplicationContext.instance().get(IMatchMaker.class).joinGame(player);
       } catch (IOException e) {
         e.printStackTrace();
