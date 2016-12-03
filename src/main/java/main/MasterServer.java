@@ -11,6 +11,7 @@ import mechanics.Mechanics;
 import messageSystem.MessageSystem;
 import network.ClientConnectionServer;
 import network.ClientConnections;
+import network.Kicker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -63,6 +64,7 @@ public class MasterServer {
     }
 
 
+    messageSystem.registerService(Kicker.class, new Kicker());
     try {
       messageSystem.registerService(Mechanics.class, (Service) Class.forName(configuration.getServices()[0]).newInstance());
       messageSystem.registerService(AccountServer.class,
