@@ -6,5 +6,6 @@ package mechanics;
 
 
 public interface MechanicConstants {
-
+    int MINIMAL_MASS = 16;
+    int TIME_FACTOR = 40;
 }
