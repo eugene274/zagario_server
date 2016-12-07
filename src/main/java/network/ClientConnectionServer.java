@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.websocket.api.WebSocketException;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -48,7 +49,10 @@ public class ClientConnectionServer extends Service {
     while (true) {
       try {
         ApplicationContext.instance().get(MessageSystem.class).execOneForService(this);
-      } catch (InterruptedException e) {
+      }
+      catch (WebSocketException ignore){
+      }
+      catch (InterruptedException e) {
         e.printStackTrace();
         return;
       }

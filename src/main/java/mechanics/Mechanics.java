@@ -18,6 +18,7 @@ import ticker.Ticker;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static mechanics.MechanicConstants.INERTNESS_FACTOR;
 import static mechanics.MechanicConstants.MINIMAL_MASS;
 import static mechanics.MechanicConstants.TIME_FACTOR;
 
@@ -76,11 +77,12 @@ public class Mechanics extends Service implements Tickable {
           avgX += dX; avgY += dY;
 
           for (Cell c : player.getCells()){
+              int inertness = (int) Math.ceil(Math.max(c.getMass(), MINIMAL_MASS)*INERTNESS_FACTOR);
             c.setX(c.getX() + (int)(
-                    (avgX - c.getX())/Math.max(c.getMass(), MINIMAL_MASS)
+                    (avgX - c.getX())/inertness
             ));
             c.setY(c.getY() + (int)(
-                    (avgY - c.getY())/Math.max(c.getMass(), MINIMAL_MASS)
+                    (avgY - c.getY())/inertness
             ));
           }
 
