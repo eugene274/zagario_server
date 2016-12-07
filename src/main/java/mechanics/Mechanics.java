@@ -45,6 +45,12 @@ public class Mechanics extends Service implements Tickable {
   public void tick(long elapsedNanos) {
     //TODO mechanics
     for (GameSession gs : ApplicationContext.instance().get(IMatchMaker.class).getActiveGameSessions()){
+
+      gs.getFoodGenerator().tick(elapsedNanos);
+      log.debug("FOOD " + gs.getField().getFoods().size());
+      gs.getVirusGenerator().generate();
+      log.debug("VIRUSES " + gs.getField().getViruses());
+
       for (Player player : gs.getPlayers()){
         // moves
         if(playerMoves.containsKey(player.getId())){
@@ -55,9 +61,9 @@ public class Mechanics extends Service implements Tickable {
           float avgX = 0;
           float avgY = 0;
 
-          float dT = elapsedNanos/1000_00;
-          float dX = (vX/10f)*(dT/TIME_FACTOR)*gs.getField().getHeight();
-          float dY = (vY/10f)*(dT/TIME_FACTOR)*gs.getField().getHeight();
+          float dT = elapsedNanos/1000_000;
+          float dX = (vX/10)*(dT/TIME_FACTOR)*gs.getField().getHeight();
+          float dY = (vY/10)*(dT/TIME_FACTOR)*gs.getField().getHeight();
 
           log.debug("ELAPSED " + elapsedNanos);
           log.debug(String.format("DT = %f; DX = %f; DY = %f", dT, dX, dY));

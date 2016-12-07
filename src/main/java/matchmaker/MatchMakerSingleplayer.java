@@ -63,6 +63,6 @@ public class MatchMakerSingleplayer implements IMatchMaker {
     //Ticker ticker = ApplicationContext.instance().get(Ticker.class);
     UniformFoodGenerator foodGenerator = new UniformFoodGenerator(field, GameConstants.FOOD_PER_SECOND_GENERATION, GameConstants.MAX_FOOD_ON_FIELD);
     //ticker.registerTickable(foodGenerator);
-    return new GameSessionImpl(foodGenerator, new RandomPlayerPlacer(field), new RandomVirusGenerator(field, GameConstants.NUMBER_OF_VIRUSES));
+    return new GameSessionImpl(field ,foodGenerator, new RandomPlayerPlacer(field), new RandomVirusGenerator(field, GameConstants.NUMBER_OF_VIRUSES));
   }
 }

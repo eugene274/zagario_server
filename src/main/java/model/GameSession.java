@@ -1,6 +1,8 @@
 package model;
 
 import org.jetbrains.annotations.NotNull;
+import utils.FoodGenerator;
+import utils.VirusGenerator;
 
 import java.util.List;
 
@@ -29,6 +31,10 @@ public interface GameSession {
   List<Player> getPlayers();
 
   Field getField();
+
+  FoodGenerator getFoodGenerator();
+
+  VirusGenerator getVirusGenerator();
 
   String[] getLeaders();
 }

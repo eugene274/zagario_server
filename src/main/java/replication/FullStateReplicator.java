@@ -45,7 +45,8 @@ public class FullStateReplicator implements Replicator {
       i = 0;
       Food[] food = new Food[gameSession.getField().getFoods().size()];
       for (model.Food f : gameSession.getField().getFoods()){
-        food[i] = new Food(f.getX(),f.getY());
+        food[i] = new Food(f.getX(), f.getY());
+        i++;
       }
 
       for (Map.Entry<Player, Session> connection : ApplicationContext.instance().get(ClientConnections.class).getConnections()) {
