@@ -9,4 +9,5 @@ public interface MechanicConstants {
     int MINIMAL_MASS = 16;
     int TIME_FACTOR = 40;
     float INERTNESS_FACTOR = 0.001f;
+    int EJECTED_MASS = 10;
 }

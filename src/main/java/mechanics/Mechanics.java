@@ -6,10 +6,7 @@ import matchmaker.IMatchMaker;
 import messageSystem.Message;
 import messageSystem.MessageSystem;
 import messageSystem.messages.ReplicateMsg;
-import model.Cell;
-import model.Food;
-import model.GameSession;
-import model.Player;
+import model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Math.round;
 import static mechanics.MechanicConstants.*;
 
 /**
@@ -31,6 +29,12 @@ public class Mechanics extends Service implements Tickable {
   private final static Logger log = LogManager.getLogger(Mechanics.class);
   @NotNull
   private final Map<Integer,Float[]> playerMoves = new HashMap<>();
+  @NotNull
+  private final List<Integer> playerEject = new ArrayList<>();
+  @NotNull
+  private final List<Integer> playerSplit = new ArrayList<>();
+  @NotNull
+  private final List<Cell> notNullSpeedCells = new ArrayList<>();
 
   public Mechanics() {
     super("mechanics");
@@ -65,7 +69,7 @@ public class Mechanics extends Service implements Tickable {
           float avgX = 0;
           float avgY = 0;
 
-          float dT = elapsedNanos/1000_000;
+          float dT = elapsedNanos/1000_000_000;
           float dX = (vX/10)*(dT/TIME_FACTOR)*gs.getField().getHeight();
           float dY = (vY/10)*(dT/TIME_FACTOR)*gs.getField().getHeight();
 
@@ -104,7 +108,51 @@ public class Mechanics extends Service implements Tickable {
             ));
           }
         }
+
+        // eject
+        if (playerEject.contains(player.getId())) {
+
+          for (Cell cell : player.getCells()) {
+            int initMass = cell.getMass();
+            if (initMass >= MINIMAL_MASS + EJECTED_MASS) {
+
+                cell.setMass(initMass - EJECTED_MASS);
+
+                int x = cell.getX() + cell.getRadius() + 50;
+                int y = cell.getY() + cell.getRadius() + 50;
+
+                Cell ejectedCell = new PlayerCell(-1, x, y);
+                ejectedCell.setSpeedX(cell.getSpeedX() + 5);
+                ejectedCell.setSpeedY(cell.getSpeedY() + 5);
+                ejectedCell.setMass(EJECTED_MASS);
+
+                notNullSpeedCells.add(ejectedCell);
+
+                gs.getField().setFreeCells(ejectedCell);
+            }
+          }
+        }
+
+          // split
+          if (playerSplit.contains(player.getId())) {
+            for (Cell cell : new ArrayList<>(player.getCells())) {
+                int initMass = cell.getMass();
+                if (initMass >= 2*MINIMAL_MASS) {
+                    int halfMass = round(initMass/2);
+                    cell.setMass(halfMass);
+                    PlayerCell newCell = new PlayerCell(PlayerCell.idGenerator.next(),
+                            cell.getX() + 50, cell.getY() + 50);
+                    newCell.setMass(halfMass);
+                    player.addCell(newCell);
+                }
+            }
+          }
       }
+
+//      for (Cell cell : notNullSpeedCells) {
+//        cell.setSpeedX(round(cell.getSpeedX()/1.2f));
+//        cell.setSpeedY(round(cell.getSpeedY()/1.2f));
+//      }
     }
 
     @NotNull MessageSystem messageSystem = ApplicationContext.instance().get(MessageSystem.class);
@@ -114,6 +162,8 @@ public class Mechanics extends Service implements Tickable {
     log.info("Start replication");
     messageSystem.sendMessage(replicateMsg);
 
+    playerSplit.clear();
+    playerEject.clear();
     playerMoves.clear();
     //execute all messages from queue
     messageSystem.execForService(this);
@@ -131,12 +181,18 @@ public class Mechanics extends Service implements Tickable {
   }
 
   public void eject(Player player){
-    // TODO
+    int id = player.getId();
+    if (!playerEject.contains(id)) {
+      playerEject.add(id);
+    }
     log.debug(player + " is about to eject");
   }
 
   public void split(Player player){
-    // TODO
+    int id = player.getId();
+    if (!playerSplit.contains(id)) {
+        playerSplit.add(id);
+    }
     log.debug(player + " is about to split");
   }
 }
