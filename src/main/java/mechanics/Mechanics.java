@@ -7,6 +7,7 @@ import messageSystem.Message;
 import messageSystem.MessageSystem;
 import messageSystem.messages.ReplicateMsg;
 import model.Cell;
+import model.Food;
 import model.GameSession;
 import model.Player;
 import org.apache.logging.log4j.LogManager;
@@ -15,12 +16,12 @@ import org.jetbrains.annotations.NotNull;
 import ticker.Tickable;
 import ticker.Ticker;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static mechanics.MechanicConstants.INERTNESS_FACTOR;
-import static mechanics.MechanicConstants.MINIMAL_MASS;
-import static mechanics.MechanicConstants.TIME_FACTOR;
+import static mechanics.MechanicConstants.*;
 
 /**
  * Created by apomosov on 14.05.16.
@@ -52,6 +53,8 @@ public class Mechanics extends Service implements Tickable {
       gs.getVirusGenerator().generate();
       log.debug("VIRUSES " + gs.getField().getViruses());
 
+      List<Cell> toEat = new ArrayList<>();
+
       for (Player player : gs.getPlayers()){
         // moves
         if(playerMoves.containsKey(player.getId())){
@@ -72,6 +75,21 @@ public class Mechanics extends Service implements Tickable {
           for (Cell c : player.getCells()){
             avgX += (float) c.getX()/player.getCells().size();
             avgY += (float) c.getY()/player.getCells().size();
+
+            // eating food
+            for(Food food : gs.getField().getFoods()){
+              if(food.distance(c) <= Math.abs(c.getRadius() - food.getRadius())){
+                c.setMass(c.getMass() + food.getMass());
+                log.debug("PLAYER " + player + " eat food");
+                toEat.add(food);
+              }
+            }
+
+
+          }
+
+          for(Cell victim : toEat){
+            gs.getField().getFoods().remove(victim);
           }
 
           avgX += dX; avgY += dY;
@@ -85,7 +103,6 @@ public class Mechanics extends Service implements Tickable {
                     (avgY - c.getY())/inertness
             ));
           }
-
         }
       }
     }
