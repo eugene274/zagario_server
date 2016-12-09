@@ -14,6 +14,9 @@ public abstract class Cell {
   private int radius;
   private int mass;
 
+  private int speedX;
+  private int speedY;
+
   public Cell(int x, int y, int mass) {
     this.x = x;
     this.y = y;
@@ -34,6 +37,22 @@ public abstract class Cell {
 
   public void setY(int y) {
     this.y = y;
+  }
+
+  public int getSpeedX() {
+    return speedX;
+  }
+
+  public void setSpeedX(int speedX) {
+    this.speedX = speedX;
+  }
+
+  public int getSpeedY() {
+    return speedY;
+  }
+
+  public void setSpeedY(int speedY) {
+    this.speedY = speedY;
   }
 
   public int getRadius() {
