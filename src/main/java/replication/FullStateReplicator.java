@@ -28,7 +28,11 @@ public class FullStateReplicator implements Replicator {
       for (Player player : gameSession.getPlayers()) {
         numberOfCellsInSession += player.getCells().size();
       }
-      Cell[] cells = new Cell[numberOfCellsInSession + gameSession.getField().getViruses().size()];
+      Cell[] cells = new Cell[
+              numberOfCellsInSession
+              + gameSession.getField().getViruses().size()
+              + gameSession.getField().getFreeCells().size()
+              ];
 
       int i = 0;
       for (Player player : gameSession.getPlayers()) {
@@ -39,6 +43,10 @@ public class FullStateReplicator implements Replicator {
       }
       for (Virus virus : gameSession.getField().getViruses()){
         cells[i] = new Cell(-1, -1, true, virus.getMass(), virus.getX(), virus.getY());
+        i++;
+      }
+      for (model.Cell freeCell : gameSession.getField().getFreeCells()){
+        cells[i] = new Cell(-1, -1, false, freeCell.getMass(), freeCell.getX(), freeCell.getY());
         i++;
       }
 
