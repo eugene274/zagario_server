@@ -13,10 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import ticker.Tickable;
 import ticker.Ticker;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.Math.round;
 import static mechanics.MechanicConstants.*;
@@ -69,7 +66,7 @@ public class Mechanics extends Service implements Tickable {
           float avgX = 0;
           float avgY = 0;
 
-          float dT = elapsedNanos/1000_000_000;
+          float dT = elapsedNanos/1000_00;
           float dX = (vX/10)*(dT/TIME_FACTOR)*gs.getField().getHeight();
           float dY = (vY/10)*(dT/TIME_FACTOR)*gs.getField().getHeight();
 
@@ -81,20 +78,15 @@ public class Mechanics extends Service implements Tickable {
             avgY += (float) c.getY()/player.getCells().size();
 
             // eating food
-            for(Food food : gs.getField().getFoods()){
+            for(Food food : new HashSet<>(gs.getField().getFoods())){
               if(food.distance(c) <= Math.abs(c.getRadius() - food.getRadius())){
                 c.setMass(c.getMass() + food.getMass());
                 log.debug("PLAYER " + player + " eat food");
-                toEat.add(food);
+                gs.getField().getFoods().remove(food);
               }
             }
-
-
           }
 
-          for(Cell victim : toEat){
-            gs.getField().getFoods().remove(victim);
-          }
 
           avgX += dX; avgY += dY;
 
