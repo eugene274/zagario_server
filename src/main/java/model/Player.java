@@ -22,7 +22,7 @@ public class Player {
   public Player(int id, @NotNull String name) {
     this.id = id;
     this.name = name;
-    addCell(new PlayerCell(Cell.idGenerator.next(), 0, 0));
+    addCell(new PlayerCell(id, 0, 0));
   }
 
   public void addCell(@NotNull PlayerCell cell) {

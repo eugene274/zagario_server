@@ -27,7 +27,6 @@ public class MoveMsg extends Message {
 
     @Override
     public void exec(Abonent abonent) {
-        System.out.println("Exec move msg");
         ((Mechanics) abonent).move(player,dx,dy);
     }
 }

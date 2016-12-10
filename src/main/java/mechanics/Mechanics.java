@@ -43,7 +43,7 @@ public class Mechanics extends Service implements Tickable {
   @Override
   public void run() {
     log.info(getAddress() + " started");
-    Ticker ticker = new Ticker(this, 30);
+    Ticker ticker = new Ticker(this, 40);
     ticker.loop();
   }
 
@@ -140,8 +140,7 @@ public class Mechanics extends Service implements Tickable {
                 if (initMass >= 2*MINIMAL_MASS) {
                     int halfMass = round(initMass/2);
                     cell.setMass(halfMass);
-                    PlayerCell newCell = new PlayerCell(PlayerCell.idGenerator.next(),
-                            cell.getX() + 50, cell.getY() + 50);
+                    PlayerCell newCell = new PlayerCell(player.getId(),cell.getX() + 50, cell.getY() + 50);
                     newCell.setMass(halfMass);
                     player.addCell(newCell);
                 }

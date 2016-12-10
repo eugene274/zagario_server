@@ -9,6 +9,8 @@ import utils.SequentialIDGenerator;
 public abstract class Cell {
   public static final IDGenerator idGenerator = new SequentialIDGenerator();
 
+  private final int cellId;
+
   private int x;
   private int y;
   private int radius;
@@ -20,6 +22,7 @@ public abstract class Cell {
   public Cell(int x, int y, int mass) {
     this.x = x;
     this.y = y;
+    this.cellId = idGenerator.next();
     setMass(mass);
   }
 
@@ -66,6 +69,10 @@ public abstract class Cell {
   public void setMass(int mass) {
     this.mass = mass;
     updateRadius();
+  }
+
+  public int getCellId() {
+    return cellId;
   }
 
   public int distance(Cell to){
