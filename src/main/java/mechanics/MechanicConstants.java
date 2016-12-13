@@ -7,7 +7,15 @@ package mechanics;
 
 public interface MechanicConstants {
     int MINIMAL_MASS = 16;
-    int TIME_FACTOR = 40;
-    float INERTNESS_FACTOR = 0.001f;
     int EJECTED_MASS = 10;
+
+    float MINIMAL_SPEED = 0.1f;
+    float MAXIMAL_SPEED = 10f;
+    float SPLIT_SPEED = 15f;
+
+    float EJECT_SPEED = 18f;
+
+    float VISCOSITY_DECREMENT = 1000f; // milliseconds
+    float ATTRACTION_DECREMENT = 30_000f;
+
 }
