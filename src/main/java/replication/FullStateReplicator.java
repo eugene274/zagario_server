@@ -37,16 +37,16 @@ public class FullStateReplicator implements Replicator {
       int i = 0;
       for (Player player : gameSession.getPlayers()) {
         for (PlayerCell playerCell : player.getCells()) {
-          cells[i] = new Cell(playerCell.getId(), player.getId(), false, playerCell.getMass(), playerCell.getX(), playerCell.getY());
+          cells[i] = new Cell(playerCell.getCellId(), playerCell.getPlayerId(), false, playerCell.getMass(), playerCell.getX(), playerCell.getY());
           i++;
         }
       }
       for (Virus virus : gameSession.getField().getViruses()){
-        cells[i] = new Cell(-1, -1, true, virus.getMass(), virus.getX(), virus.getY());
+        cells[i] = new Cell(virus.getCellId(), -1, true, virus.getMass(), virus.getX(), virus.getY());
         i++;
       }
       for (model.Cell freeCell : gameSession.getField().getFreeCells()){
-        cells[i] = new Cell(-1, -1, false, freeCell.getMass(), freeCell.getX(), freeCell.getY());
+        cells[i] = new Cell(freeCell.getCellId(), -1, false, freeCell.getMass(), freeCell.getX(), freeCell.getY());
         i++;
       }
 
@@ -73,6 +73,6 @@ public class FullStateReplicator implements Replicator {
         gameSession -> gameSession.getPlayers().stream().flatMap(
             player -> player.getCells().stream()
         )
-    ).map(playerCell -> new Cell(playerCell.getId(), ))*/
+    ).map(playerCell -> new Cell(playerCell.getPlayerId(), ))*/
   }
 }

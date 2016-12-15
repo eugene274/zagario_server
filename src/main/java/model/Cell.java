@@ -9,17 +9,20 @@ import utils.SequentialIDGenerator;
 public abstract class Cell {
   public static final IDGenerator idGenerator = new SequentialIDGenerator();
 
+  private final int cellId;
+
   private int x;
   private int y;
   private int radius;
   private int mass;
 
-  private int speedX;
-  private int speedY;
+  private float speedX;
+  private float speedY;
 
   public Cell(int x, int y, int mass) {
     this.x = x;
     this.y = y;
+    this.cellId = idGenerator.next();
     setMass(mass);
   }
 
@@ -39,19 +42,19 @@ public abstract class Cell {
     this.y = y;
   }
 
-  public int getSpeedX() {
+  public float getSpeedX() {
     return speedX;
   }
 
-  public void setSpeedX(int speedX) {
+  public void setSpeedX(float speedX) {
     this.speedX = speedX;
   }
 
-  public int getSpeedY() {
+  public float getSpeedY() {
     return speedY;
   }
 
-  public void setSpeedY(int speedY) {
+  public void setSpeedY(float speedY) {
     this.speedY = speedY;
   }
 
@@ -66,6 +69,10 @@ public abstract class Cell {
   public void setMass(int mass) {
     this.mass = mass;
     updateRadius();
+  }
+
+  public int getCellId() {
+    return cellId;
   }
 
   public int distance(Cell to){
