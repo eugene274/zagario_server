@@ -6,6 +6,7 @@ import accountserver.database.DbHibernate;
 import leaderboard.model.Score;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.TestOnly;
 
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -39,12 +40,14 @@ public class ScoreDAO implements DAO<Score> {
 
     private void initSchema() throws DaoException {
         try {
-            connection.createStatement().execute("CREATE TABLE IF NOT EXISTS LEADERBOARD (" +
+            connection.createStatement().executeUpdate("CREATE TABLE IF NOT EXISTS LEADERBOARD (" +
                     "GS_ID INT NOT NULL," +
                     "PLAYER_ID INT NOT NULL," +
-                    "SCORE INT NOT NULL" +
+                    "SCORE INT NOT NULL," +
                     "PRIMARY KEY (GS_ID, PLAYER_ID)" +
                     ");");
+
+            connection.setAutoCommit(true) ;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
@@ -59,7 +62,7 @@ public class ScoreDAO implements DAO<Score> {
             statement.setInt(1, gsId);
             statement.setInt(2, in.getPlayerId());
             statement.setInt(3, in.getScore());
-            statement.execute();
+            statement.executeUpdate();
             return -1L;
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -105,11 +108,27 @@ public class ScoreDAO implements DAO<Score> {
 
     @Override
     public void remove(Score in) throws DaoException {
-
+        remove((long) in.getPlayerId());
     }
 
     @Override
     public void remove(Long id) throws DaoException {
+        try {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM LEADERBOARD WHERE GS_ID = ? AND PLAYER_ID = ?;");
+            statement.setInt(1, gsId);
+            statement.setLong(2, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
 
+    @TestOnly
+    public void flushAll() throws DaoException {
+        try {
+            connection.createStatement().executeUpdate("DELETE FROM LEADERBOARD;");
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 }
