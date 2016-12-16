@@ -80,7 +80,7 @@ public class ScoreDAO implements DAO<Score> {
 
     @Override
     public List<Score> getWhere(String... conditions) throws DaoException {
-        StringJoiner conditionJoiner = new StringJoiner(" AND ");
+        StringJoiner conditionJoiner = new StringJoiner(" AND ", "", " ORDER BY SCORE DESC");
         for (String condition : conditions){
             conditionJoiner.add(condition);
         }
@@ -97,7 +97,7 @@ public class ScoreDAO implements DAO<Score> {
     @Override
     public List<Score> getAll() throws DaoException {
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT * FROM LEADERBOARD WHERE GS_ID = ?;");
+            PreparedStatement statement = connection.prepareStatement("SELECT * FROM LEADERBOARD WHERE GS_ID = ? ORDER BY SCORE DESC;");
             statement.setInt(1, gsId);
             ResultSet resultSet = statement.executeQuery();
             return scoreListExecutor.execute(resultSet);
