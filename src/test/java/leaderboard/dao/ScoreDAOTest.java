@@ -60,6 +60,15 @@ public class ScoreDAOTest {
     }
 
     @Test
+    public void addPoints() throws Exception {
+        Score score = new Score(6, 33);
+        dao.insert(score);
+
+        dao.addPoints(6L, 10);
+        assertEquals(43, dao.getById(6L).getScore());
+    }
+
+    @Test
     public void getWhere() throws Exception {
 
     }
@@ -76,6 +85,15 @@ public class ScoreDAOTest {
 
         dao.remove(4L);
         assertNull(dao.getById(4L));
+    }
+
+    @Test
+    public void flush1() throws Exception {
+        Score score = new Score(5, 33);
+        dao.insert(score);
+
+        dao.flush();
+        assertEquals(0, dao.getAll().size());
     }
 
 }

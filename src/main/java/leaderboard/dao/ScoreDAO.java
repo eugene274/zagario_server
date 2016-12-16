@@ -123,6 +123,28 @@ public class ScoreDAO implements DAO<Score> {
         }
     }
 
+    public void flush() throws DaoException {
+        try {
+            PreparedStatement statement = connection.prepareStatement("DELETE FROM LEADERBOARD WHERE GS_ID = ?;");
+            statement.setInt(1, gsId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    public void addPoints(Long id, int points) throws DaoException {
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE LEADERBOARD SET SCORE = SCORE + ? WHERE GS_ID = ? AND PLAYER_ID = ?;");
+            statement.setInt(1, points);
+            statement.setInt(2, gsId);
+            statement.setLong(3, id);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
     @TestOnly
     public void flushAll() throws DaoException {
         try {
