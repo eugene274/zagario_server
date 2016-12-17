@@ -1,6 +1,7 @@
 package replication;
 
 import main.MasterServer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -8,6 +9,7 @@ import org.junit.Test;
  */
 public class FakeReplicaTest {
 
+    @Ignore
     @Test
     public void fakeLeaderBoardTest() throws Exception {
 
@@ -21,6 +23,7 @@ public class FakeReplicaTest {
         MasterServer.main(new String[]{"test", "src/test/resources/fake_leader_board_config.ini"});
     }
 
+    @Ignore
     @Test
     public void fullState() throws Exception{
       MasterServer.main(new String[]{"test", "src/test/resources/fake_replica_config.ini"});
