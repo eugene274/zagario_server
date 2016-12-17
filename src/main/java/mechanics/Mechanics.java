@@ -100,19 +100,19 @@ public class Mechanics extends Service implements Tickable {
 //          avgX += dX; avgY += dY;
 
           for (Cell cell : player.getCells()){
-              if(cell.getSpeedX() > MAXIMAL_SPEED*1.2 || cell.getSpeedY() > MAXIMAL_SPEED*1.2){
+              if(abs(cell.getSpeedX()) > MAXIMAL_SPEED*1.2 || abs(cell.getSpeedY()) > MAXIMAL_SPEED*1.2){
                 decrementSpeed(cell, dT);
               }
               else {
-                // retaining force
-                float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2,3.0)/pow(gs.getField().getWidth(), 4.0));
-                float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2,3.0)/pow(gs.getField().getHeight(), 4.0));
+                // returning force
+                float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2f,3.0)/pow(gs.getField().getWidth(), 4.0));
+                float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2f,3.0)/pow(gs.getField().getHeight(), 4.0));
 
                 float speedX = (vX + (avgX - cell.getX())/ATTRACTION_DECREMENT + rfX)*getViscosityDecrement(cell);
                 float speedY = (vY + (avgY - cell.getY())/ATTRACTION_DECREMENT + rfY)*getViscosityDecrement(cell);
 
-                cell.setSpeedX((speedX > MAXIMAL_SPEED)? MAXIMAL_SPEED : speedX);
-                cell.setSpeedY((speedY > MAXIMAL_SPEED)? MAXIMAL_SPEED : speedY);
+                cell.setSpeedX((abs(speedX) > MAXIMAL_SPEED)? Math.signum(speedX)*MAXIMAL_SPEED : speedX);
+                cell.setSpeedY((abs(speedY) > MAXIMAL_SPEED)? Math.signum(speedY)*MAXIMAL_SPEED : speedY);
               }
 
               computeCoordinates(cell, dT);
