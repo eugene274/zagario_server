@@ -164,6 +164,9 @@ public class Mechanics extends Service implements Tickable {
               }
             }
           }
+
+
+        player.updateScore();
       }
 
 //      for (Cell cell : notNullSpeedCells) {
