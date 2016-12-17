@@ -17,5 +17,6 @@ public interface MechanicConstants {
 
     float VISCOSITY_DECREMENT = 1000f; // milliseconds
     float ATTRACTION_DECREMENT = 30_000f;
+    float RETURNING_FORCE = 50f;
 
 }

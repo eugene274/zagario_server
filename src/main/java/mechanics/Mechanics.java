@@ -100,8 +100,11 @@ public class Mechanics extends Service implements Tickable {
                 decrementSpeed(cell, dT);
               }
               else {
-                float speedX = (vX + (avgX - cell.getX())/ATTRACTION_DECREMENT)*VISCOSITY_DECREMENT;
-                float speedY = (vY + (avgY - cell.getY())/ATTRACTION_DECREMENT)*VISCOSITY_DECREMENT;
+                float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2,3.0)/pow(gs.getField().getWidth(), 4.0));
+                float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2,3.0)/pow(gs.getField().getHeight(), 4.0));
+
+                float speedX = (vX + (avgX - cell.getX())/ATTRACTION_DECREMENT + rfX)*VISCOSITY_DECREMENT;
+                float speedY = (vY + (avgY - cell.getY())/ATTRACTION_DECREMENT + rfY)*VISCOSITY_DECREMENT;
 
                 cell.setSpeedX((speedX > MAXIMAL_SPEED)? MAXIMAL_SPEED : speedX);
                 cell.setSpeedY((speedY > MAXIMAL_SPEED)? MAXIMAL_SPEED : speedY);
