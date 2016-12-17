@@ -12,6 +12,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import ticker.Tickable;
 import ticker.Ticker;
+import utils.*;
+import utils.Timer;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,8 @@ public class Mechanics extends Service implements Tickable {
   private final List<Integer> playerEject = new ArrayList<>();
   @NotNull
   private final List<Integer> playerSplit = new ArrayList<>();
+  @NotNull
+  private final Map<Player, utils.Timer> playerSplitTimers = new HashMap<>();
 
   public Mechanics() {
     super("mechanics");
@@ -100,7 +104,10 @@ public class Mechanics extends Service implements Tickable {
 //          avgX += dX; avgY += dY;
 
           for (Cell cell : player.getCells()){
-              if(abs(cell.getSpeedX()) > MAXIMAL_SPEED*1.2 || abs(cell.getSpeedY()) > MAXIMAL_SPEED*1.2){
+              if(
+                      abs(cell.getSpeedX()) > MAXIMAL_SPEED*1.2 || abs(cell.getSpeedY()) > MAXIMAL_SPEED*1.2 ||
+                              ( playerSplitTimers.containsKey(player) && !playerSplitTimers.get(player).isExpired() )
+                      ){
                 decrementSpeed(cell, dT);
               }
               else {
@@ -150,28 +157,6 @@ public class Mechanics extends Service implements Tickable {
             }
           }
         }
-
-          // split
-          if (playerSplit.contains(player.getId())) {
-            for (Cell cell : new ArrayList<>(player.getCells())) {
-              int initMass = cell.getMass();
-              if (initMass >= 2*MINIMAL_MASS) {
-                float angle = (float) (2*Math.PI*Math.random());
-                float dVx = (float)(SPLIT_SPEED*cos(angle));
-                float dVy = (float)(SPLIT_SPEED*sin(angle));
-                int halfMass = round(initMass/2);
-                cell.setMass(halfMass);
-                cell.setSpeedX(cell.getSpeedX() + dVx);
-                cell.setSpeedY(cell.getSpeedY() + dVy);
-
-                PlayerCell newCell = new PlayerCell(player.getId(),cell.getX(), cell.getY());
-                newCell.setMass(halfMass);
-                player.addCell(newCell);
-                newCell.setSpeedX(cell.getSpeedX() - dVx);
-                newCell.setSpeedY(cell.getSpeedY() - dVy);
-              }
-            }
-          }
       }
 
 //      for (Cell cell : notNullSpeedCells) {
@@ -219,5 +204,28 @@ public class Mechanics extends Service implements Tickable {
         playerSplit.add(id);
     }
     log.debug(player + " is about to split");
+
+    if (!playerSplitTimers.containsKey(player) || playerSplitTimers.get(player).isExpired()){
+      for (Cell cell : new ArrayList<>(player.getCells())) {
+        int initMass = cell.getMass();
+        if (initMass >= 2*MINIMAL_MASS) {
+          float angle = (float) (2*Math.PI*Math.random());
+          float dVx = (float)(SPLIT_SPEED*cos(angle));
+          float dVy = (float)(SPLIT_SPEED*sin(angle));
+          int halfMass = round(initMass/2);
+          cell.setMass(halfMass);
+          cell.setSpeedX(cell.getSpeedX() + dVx);
+          cell.setSpeedY(cell.getSpeedY() + dVy);
+
+          PlayerCell newCell = new PlayerCell(player.getId(),cell.getX(), cell.getY());
+          newCell.setMass(halfMass);
+          player.addCell(newCell);
+          newCell.setSpeedX(cell.getSpeedX() - dVx);
+          newCell.setSpeedY(cell.getSpeedY() - dVy);
+        }
+      }
+
+      playerSplitTimers.put(player, new Timer(EJECTION_TIME, TimeUnit.MILLISECONDS));
+    }
   }
 }

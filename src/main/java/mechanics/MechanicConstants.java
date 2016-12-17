@@ -9,6 +9,8 @@ public interface MechanicConstants {
     int MINIMAL_MASS = 16;
     int EJECTED_MASS = 10;
 
+    long EJECTION_TIME = 1000;
+
     float MINIMAL_SPEED = 0.1f;
     float MAXIMAL_SPEED = 10f;
     float SPLIT_SPEED = 15f;
@@ -17,7 +19,8 @@ public interface MechanicConstants {
 
     float VISCOSITY_DECREMENT = 1000f; // milliseconds
     float ATTRACTION_DECREMENT = 30_000f;
-    float VISCOSITY_SCALING = 50f;
+    float VISCOSITY_SCALING = 100f;
     float RETURNING_FORCE = 50f;
+
 
 }
