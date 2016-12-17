@@ -44,13 +44,17 @@ public class Mechanics extends Service implements Tickable {
   }
 
   private static void decrementSpeed(Cell cell, float dt){
-    cell.setSpeedX( (cell.getSpeedX() > MINIMAL_SPEED)? cell.getSpeedX()*(1 - 10*dt/VISCOSITY_DECREMENT) : 0.0f );
-    cell.setSpeedY( (cell.getSpeedY() > MINIMAL_SPEED)? cell.getSpeedY()*(1 - 10*dt/VISCOSITY_DECREMENT) : 0.0f );
+    cell.setSpeedX( (cell.getSpeedX() > MINIMAL_SPEED)? cell.getSpeedX()*(1 - dt*VISCOSITY_SCALING/getViscosityDecrement(cell)) : 0.0f );
+    cell.setSpeedY( (cell.getSpeedY() > MINIMAL_SPEED)? cell.getSpeedY()*(1 - dt*VISCOSITY_SCALING/getViscosityDecrement(cell)) : 0.0f );
   }
 
   private static void computeCoordinates(Cell cell, float dt){
     cell.setX(cell.getX() + (int)(cell.getSpeedX()*dt));
     cell.setY(cell.getY() + (int)(cell.getSpeedY()*dt));
+  }
+
+  private static float getViscosityDecrement(Cell cell){
+    return VISCOSITY_DECREMENT*10/cell.getRadius();
   }
 
   @Override
@@ -100,11 +104,12 @@ public class Mechanics extends Service implements Tickable {
                 decrementSpeed(cell, dT);
               }
               else {
+                // retaining force
                 float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2,3.0)/pow(gs.getField().getWidth(), 4.0));
                 float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2,3.0)/pow(gs.getField().getHeight(), 4.0));
 
-                float speedX = (vX + (avgX - cell.getX())/ATTRACTION_DECREMENT + rfX)*VISCOSITY_DECREMENT;
-                float speedY = (vY + (avgY - cell.getY())/ATTRACTION_DECREMENT + rfY)*VISCOSITY_DECREMENT;
+                float speedX = (vX + (avgX - cell.getX())/ATTRACTION_DECREMENT + rfX)*getViscosityDecrement(cell);
+                float speedY = (vY + (avgY - cell.getY())/ATTRACTION_DECREMENT + rfY)*getViscosityDecrement(cell);
 
                 cell.setSpeedX((speedX > MAXIMAL_SPEED)? MAXIMAL_SPEED : speedX);
                 cell.setSpeedY((speedY > MAXIMAL_SPEED)? MAXIMAL_SPEED : speedY);
