@@ -6,13 +6,15 @@ import matchmaker.IMatchMaker;
 import messageSystem.Message;
 import messageSystem.MessageSystem;
 import messageSystem.messages.ReplicateMsg;
-import model.*;
+import model.Cell;
+import model.GameSession;
+import model.Player;
+import model.PlayerCell;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import ticker.Tickable;
 import ticker.Ticker;
-import utils.*;
 import utils.Timer;
 
 import java.util.*;
@@ -127,10 +129,19 @@ public class Mechanics extends Service implements Tickable {
 
             // eating food
             for(Cell food : new HashSet<>(gs.getField().getFoods())){
-              if(food.distance(cell) <= Math.abs(cell.getRadius() - food.getRadius())){
+              if(food.distance(cell) <= Math.abs(cell.getRadius())){
                 cell.setMass(cell.getMass() + food.getMass());
                 log.debug("PLAYER " + player + " eat food");
                 gs.getField().getFoods().remove(food);
+              }
+            }
+
+            // eating freeCell
+            for(Cell freeCell : new ArrayList<>(gs.getField().getFreeCells())) {
+              if (freeCell.distance(cell) <= Math.abs(cell.getRadius())) {
+                cell.setMass(cell.getMass() + freeCell.getMass());
+                log.debug("PLAYER " + player + " eat free cell");
+                gs.getField().getFreeCells().remove(freeCell);
               }
             }
           }
