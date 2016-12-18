@@ -125,23 +125,18 @@ public class Mechanics extends Service implements Tickable {
 //          avgX += dX; avgY += dY;
 
           for (Cell cell : player.getCells()){
-              if(
-                      abs(cell.getSpeedX()) > MAXIMAL_SPEED*1.2 || abs(cell.getSpeedY()) > MAXIMAL_SPEED*1.2 ||
-                              ( playerSplitTimers.containsKey(player) && !playerSplitTimers.get(player).isExpired() )
-                      ){
-                decrementSpeed(cell, dT);
-              }
-              else {
-                MathVector force = returningForce.force(cell).plus(
-                        mouseForce.force(cell).plus(
-                                attractionForce.force(cell).minus(
-                                  viscosityForce.force(cell))));
-                // returning force
+
+
+            MathVector force = returningForce.force(cell).plus(
+                    mouseForce.force(cell).plus(
+                            attractionForce.force(cell).minus(
+                                    viscosityForce.force(cell))));
+            // returning force
 //                float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2f,3.0)/pow(gs.getField().getWidth(), 4.0));
 //                float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2f,3.0)/pow(gs.getField().getHeight(), 4.0));
 
-                float speedX = (float) (cell.getSpeedX() + dT*force.cartesian(0));
-                float speedY = (float) (cell.getSpeedY() + dT*force.cartesian(1));
+            float speedX = (float) (cell.getSpeedX() + dT*force.cartesian(0));
+            float speedY = (float) (cell.getSpeedY() + dT*force.cartesian(1));
 
 //                MathVector speed = cell.getSpeed().plus(force.scale(dT));
 //
@@ -151,10 +146,12 @@ public class Mechanics extends Service implements Tickable {
 //
 //                cell.setSpeed(speed);
 
-                computeSpeed(cell, force, dT);
-              }
+            computeSpeed(cell, force, dT);
+            if(cell.getSpeed().magnitude() > MAXIMAL_SPEED){
+              cell.setSpeed(cell.getSpeed().direction().scale(MAXIMAL_SPEED));
+            }
 
-              computeCoordinates(cell, dT);
+            computeCoordinates(cell, dT);
 
 
             // eating food
