@@ -20,7 +20,7 @@ public class RepulsionForce extends TemporalForce {
     private Cell referencedCell;
 
     public RepulsionForce(Cell referencedCell) {
-        super(MechanicConstants.REPULSION_TIMEOUT, TimeUnit.MILLISECONDS);
+        super(MechanicConstants.REUNION_TIMEOUT, TimeUnit.MILLISECONDS);
         multipleReferences = false;
         this.referencedCell = referencedCell;
     }

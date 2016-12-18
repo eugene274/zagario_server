@@ -70,7 +70,6 @@ public class Mechanics extends Service implements Tickable {
     for (GameSession gs : ApplicationContext.instance().get(IMatchMaker.class).getActiveGameSessions()){
       Force returningForce = new ReturningForce(gs.getField());
 
-
       gs.getFoodGenerator().tick(elapsedNanos);
       log.debug("FOOD " + gs.getField().getFoods().size());
 
@@ -80,8 +79,6 @@ public class Mechanics extends Service implements Tickable {
         computeSpeed(cell, force, dT);
         computeCoordinates(cell, dT);
       }
-
-
 
       for (Player player : gs.getPlayers()){
         // moves
@@ -136,8 +133,8 @@ public class Mechanics extends Service implements Tickable {
 
                 cell.setMass(initMass - EJECTED_MASS);
 
-                int x = cell.getX();
-                int y = cell.getY();
+                int x = (int) (cell.getX() + cell.getSpeed().direction().scale(cell.getRadius()).cartesian(0));
+                int y = (int) (cell.getY() + cell.getSpeed().direction().scale(cell.getRadius()).cartesian(1));;
 
                 Cell ejectedCell = new PlayerCell(-1, x, y);
                 ejectedCell.setSpeed(cell.getSpeed().direction().scale(EJECT_SPEED));
@@ -184,32 +181,24 @@ public class Mechanics extends Service implements Tickable {
   }
 
   public void split(Player player){
-    int id = player.getId();
-    if (!playerSplit.contains(id)) {
-        playerSplit.add(id);
-    }
     log.debug(player + " is about to split");
 
-    if (!playerSplitTimers.containsKey(player) || playerSplitTimers.get(player).isExpired()){
-      for (Cell cell : new ArrayList<>(player.getCells())) {
-        int initMass = cell.getMass();
-        if (initMass >= 2*MINIMAL_MASS) {
-          float angle = (float) (2*Math.PI*Math.random());
-          MathVector direction = new MathVector(new double[] {cos(angle),sin(angle)});
-          int halfMass = round(initMass/2);
-          cell.setMass(halfMass);
-          cell.setSpeed(cell.getSpeed().plus(direction.scale(SPLIT_SPEED)));
-          cell.setRepulsionForce(new RepulsionForce(cell));
+    for (Cell cell : new ArrayList<>(player.getCells())) {
+      int initMass = cell.getMass();
+      if (initMass >= 2*MINIMAL_MASS) {
+        float angle = (float) (2*Math.PI*Math.random());
+        MathVector direction = new MathVector(new double[] {cos(angle),sin(angle)});
+        int halfMass = round(initMass/2);
+        cell.setMass(halfMass);
+        cell.setSpeed(cell.getSpeed().plus(direction.scale(SPLIT_SPEED)));
+        cell.setRepulsionForce(new RepulsionForce(cell));
 
-          PlayerCell newCell = new PlayerCell(player.getId(),cell.getX(), cell.getY());
-          newCell.setMass(halfMass);
-          player.addCell(newCell);
-          newCell.setSpeed(cell.getSpeed().minus(direction.scale(SPLIT_SPEED)));
-          newCell.setRepulsionForce(new RepulsionForce(newCell));
-        }
+        PlayerCell newCell = new PlayerCell(player.getId(),cell.getX(), cell.getY());
+        newCell.setMass(halfMass);
+        player.addCell(newCell);
+        newCell.setSpeed(cell.getSpeed().minus(direction.scale(SPLIT_SPEED)));
+        newCell.setRepulsionForce(new RepulsionForce(newCell));
       }
-
-      playerSplitTimers.put(player, new Timer(EJECTION_TIME, TimeUnit.MILLISECONDS));
     }
   }
 }
