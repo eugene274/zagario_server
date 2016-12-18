@@ -50,8 +50,8 @@ public class Mechanics extends Service implements Tickable {
   }
 
   private static void decrementSpeed(Cell cell, float dt){
-    cell.setSpeedX( (cell.getSpeedX() > MINIMAL_SPEED)? cell.getSpeedX()*(1 - dt*VISCOSITY_SCALING/getViscosityDecrement(cell)) : 0.0f );
-    cell.setSpeedY( (cell.getSpeedY() > MINIMAL_SPEED)? cell.getSpeedY()*(1 - dt*VISCOSITY_SCALING/getViscosityDecrement(cell)) : 0.0f );
+    cell.setSpeedX( (abs(cell.getSpeedX()) > MINIMAL_SPEED)? cell.getSpeedX()*(1 - dt*VISCOSITY_SCALING/getViscosityDecrement(cell)) : 0.0f );
+    cell.setSpeedY( (abs(cell.getSpeedY()) > MINIMAL_SPEED)? cell.getSpeedY()*(1 - dt*VISCOSITY_SCALING/getViscosityDecrement(cell)) : 0.0f );
   }
 
   private static void computeCoordinates(Cell cell, float dt){
@@ -155,12 +155,12 @@ public class Mechanics extends Service implements Tickable {
 
                 cell.setMass(initMass - EJECTED_MASS);
 
-                int x = cell.getX() + cell.getRadius() + 50;
-                int y = cell.getY() + cell.getRadius() + 50;
+                int x = cell.getX();
+                int y = cell.getY();
 
                 Cell ejectedCell = new PlayerCell(-1, x, y);
-                ejectedCell.setSpeedX(cell.getSpeedX() + 5);
-                ejectedCell.setSpeedY(cell.getSpeedY() + 5);
+                ejectedCell.setSpeedX(2*cell.getSpeedX());
+                ejectedCell.setSpeedY(2*cell.getSpeedY());
                 ejectedCell.setMass(EJECTED_MASS);
 
                 gs.getField().setFreeCells(ejectedCell);

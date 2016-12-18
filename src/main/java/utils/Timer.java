@@ -16,4 +16,8 @@ public class Timer {
     public boolean isExpired(){
         return (System.nanoTime() - startedAt) > lifeTime;
     }
+
+    public long elapsed(TimeUnit unit){
+        return unit.convert(System.nanoTime(), TimeUnit.NANOSECONDS);
+    }
 }
