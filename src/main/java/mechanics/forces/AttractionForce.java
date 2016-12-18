@@ -4,6 +4,9 @@ import mechanics.Force;
 import model.Cell;
 import utils.MathVector;
 
+import java.util.Collection;
+import java.util.List;
+
 import static mechanics.MechanicConstants.ATTRACTION_DECREMENT;
 
 /**
@@ -12,12 +15,12 @@ import static mechanics.MechanicConstants.ATTRACTION_DECREMENT;
 public class AttractionForce implements Force {
     private final MathVector avg;
 
-    public AttractionForce(Cell[] cells) {
+    public AttractionForce(Collection<? extends Cell> cells) {
         avg = new MathVector(2);
         for (Cell cell: cells){
             avg.plus(cellPosition(cell));
         }
-        avg.scale(1.0/cells.length);
+        avg.scale(1.0/cells.size());
     }
 
     @Override

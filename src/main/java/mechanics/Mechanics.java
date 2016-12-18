@@ -3,6 +3,10 @@ package mechanics;
 import main.ApplicationContext;
 import main.Service;
 import matchmaker.IMatchMaker;
+import mechanics.forces.AttractionForce;
+import mechanics.forces.MouseForce;
+import mechanics.forces.ReturningForce;
+import mechanics.forces.ViscosityForce;
 import messageSystem.Message;
 import messageSystem.MessageSystem;
 import messageSystem.messages.ReplicateMsg;
@@ -15,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import ticker.Tickable;
 import ticker.Ticker;
+import utils.MathVector;
 import utils.Timer;
 
 import java.util.*;
@@ -63,6 +68,8 @@ public class Mechanics extends Service implements Tickable {
     return VISCOSITY_DECREMENT*10/cell.getRadius();
   }
 
+  Force viscosityForce = new ViscosityForce();
+
   @Override
   public void tick(long elapsedNanos) {
     float dT = elapsedNanos/1000_000f;
@@ -70,6 +77,8 @@ public class Mechanics extends Service implements Tickable {
 
     //TODO mechanics
     for (GameSession gs : ApplicationContext.instance().get(IMatchMaker.class).getActiveGameSessions()){
+      Force returningForce = new ReturningForce(gs.getField());
+
 
       gs.getFoodGenerator().tick(elapsedNanos);
       log.debug("FOOD " + gs.getField().getFoods().size());
@@ -84,9 +93,15 @@ public class Mechanics extends Service implements Tickable {
 
       for (Player player : gs.getPlayers()){
         // moves
+
+        Force attractionForce = new AttractionForce(player.getCells());
+
         if(playerMoves.containsKey(player.getId())){
-          float vX = playerMoves.get(player.getId())[0]/1000; // [ dx/millis ]
-          float vY = playerMoves.get(player.getId())[1]/1000; // [ dy/millis ]
+          float vX = playerMoves.get(player.getId())[0]; // [ dx/millis ]
+          float vY = playerMoves.get(player.getId())[1]; // [ dy/millis ]
+
+          Force mouseForce = new MouseForce(vX,vY);
+
           log.debug(String.format("MOVING PLAYER '%s' TO (%f,%f)",player.getName(),vX,vY));
 
           float avgX = 0;
@@ -97,10 +112,10 @@ public class Mechanics extends Service implements Tickable {
 
 //          log.debug(String.format("DX = %f; DY = %f", dX, dY));
 
-          for (Cell c : player.getCells()){
-            avgX += (float) c.getX()/player.getCells().size();
-            avgY += (float) c.getY()/player.getCells().size();
-          }
+//          for (Cell c : player.getCells()){
+//            avgX += (float) c.getX()/player.getCells().size();
+//            avgY += (float) c.getY()/player.getCells().size();
+//          }
 
 //          avgX += dX; avgY += dY;
 
@@ -112,12 +127,13 @@ public class Mechanics extends Service implements Tickable {
                 decrementSpeed(cell, dT);
               }
               else {
+                MathVector force = mouseForce.force(cell).plus(attractionForce.force(cell).minus(viscosityForce.force(cell)));
                 // returning force
-                float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2f,3.0)/pow(gs.getField().getWidth(), 4.0));
-                float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2f,3.0)/pow(gs.getField().getHeight(), 4.0));
+//                float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2f,3.0)/pow(gs.getField().getWidth(), 4.0));
+//                float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2f,3.0)/pow(gs.getField().getHeight(), 4.0));
 
-                float speedX = (vX + (avgX - cell.getX())/ATTRACTION_DECREMENT + rfX)*getViscosityDecrement(cell);
-                float speedY = (vY + (avgY - cell.getY())/ATTRACTION_DECREMENT + rfY)*getViscosityDecrement(cell);
+                float speedX = (float) (cell.getSpeedX() + 10*dT*force.cartesian(0));
+                float speedY = (float) (cell.getSpeedY() + 10*dT*force.cartesian(1));
 
                 cell.setSpeedX((abs(speedX) > MAXIMAL_SPEED)? Math.signum(speedX)*MAXIMAL_SPEED : speedX);
                 cell.setSpeedY((abs(speedY) > MAXIMAL_SPEED)? Math.signum(speedY)*MAXIMAL_SPEED : speedY);
