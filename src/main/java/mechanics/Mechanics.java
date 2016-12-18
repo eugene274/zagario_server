@@ -3,10 +3,7 @@ package mechanics;
 import main.ApplicationContext;
 import main.Service;
 import matchmaker.IMatchMaker;
-import mechanics.forces.AttractionForce;
-import mechanics.forces.MouseForce;
-import mechanics.forces.ReturningForce;
-import mechanics.forces.ViscosityForce;
+import mechanics.forces.*;
 import messageSystem.Message;
 import messageSystem.MessageSystem;
 import messageSystem.messages.ReplicateMsg;
@@ -100,6 +97,7 @@ public class Mechanics extends Service implements Tickable {
         // moves
 
         Force attractionForce = new AttractionForce(player.getCells());
+        Force repulsionForce = new RepulsionForce(player.getCells());
 
         if(playerMoves.containsKey(player.getId())){
           float vX = playerMoves.get(player.getId())[0]; // [ dx/millis ]
@@ -109,42 +107,15 @@ public class Mechanics extends Service implements Tickable {
 
           log.debug(String.format("MOVING PLAYER '%s' TO (%f,%f)",player.getName(),vX,vY));
 
-          float avgX = 0;
-          float avgY = 0;
-
-//          float dX = (vX/10)*(dT/TIME_FACTOR)*gs.getField().getHeight();
-//          float dY = (vY/10)*(dT/TIME_FACTOR)*gs.getField().getHeight();
-
-//          log.debug(String.format("DX = %f; DY = %f", dX, dY));
-
-//          for (Cell c : player.getCells()){
-//            avgX += (float) c.getX()/player.getCells().size();
-//            avgY += (float) c.getY()/player.getCells().size();
-//          }
-
-//          avgX += dX; avgY += dY;
 
           for (Cell cell : player.getCells()){
 
 
             MathVector force = returningForce.force(cell).plus(
-                    mouseForce.force(cell).plus(
-                            attractionForce.force(cell).minus(
-                                    viscosityForce.force(cell))));
-            // returning force
-//                float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2f,3.0)/pow(gs.getField().getWidth(), 4.0));
-//                float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2f,3.0)/pow(gs.getField().getHeight(), 4.0));
-
-            float speedX = (float) (cell.getSpeedX() + dT*force.cartesian(0));
-            float speedY = (float) (cell.getSpeedY() + dT*force.cartesian(1));
-
-//                MathVector speed = cell.getSpeed().plus(force.scale(dT));
-//
-////                if(speed.magnitude() > MAXIMAL_SPEED){
-////                  speed = speed.direction().scale(MAXIMAL_SPEED);
-////                }
-//
-//                cell.setSpeed(speed);
+                    repulsionForce.force(cell).plus(
+                            mouseForce.force(cell).plus(
+                                    attractionForce.force(cell).minus(
+                                            viscosityForce.force(cell)))));
 
             computeSpeed(cell, force, dT);
             if(cell.getSpeed().magnitude() > MAXIMAL_SPEED){
@@ -251,11 +222,13 @@ public class Mechanics extends Service implements Tickable {
           int halfMass = round(initMass/2);
           cell.setMass(halfMass);
           cell.setSpeed(cell.getSpeed().plus(direction.scale(SPLIT_SPEED)));
+          cell.setRepulsionForce(new RepulsionForce(cell));
 
           PlayerCell newCell = new PlayerCell(player.getId(),cell.getX(), cell.getY());
           newCell.setMass(halfMass);
           player.addCell(newCell);
           newCell.setSpeed(cell.getSpeed().minus(direction.scale(SPLIT_SPEED)));
+          newCell.setRepulsionForce(new RepulsionForce(newCell));
         }
       }
 

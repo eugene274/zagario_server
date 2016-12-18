@@ -25,5 +25,6 @@ public interface MechanicConstants {
     float MOUSE_FORCE_SCALING = 1.0f;
     float TIME_SCALE = 2f;
 
-
+    long REPULSION_TIMEOUT = 30_000;
+    float REPULSION_FORCE_SCALING = 100f;
 }
