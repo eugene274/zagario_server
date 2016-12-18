@@ -1,6 +1,7 @@
 package model;
 
 import utils.IDGenerator;
+import utils.MathVector;
 import utils.SequentialIDGenerator;
 
 /**
@@ -18,6 +19,16 @@ public abstract class Cell {
 
   private float speedX;
   private float speedY;
+
+  private MathVector speed = new MathVector(2);
+
+  public MathVector getSpeed() {
+    return speed;
+  }
+
+  public void setSpeed(MathVector speed) {
+    this.speed = speed;
+  }
 
   public Cell(int x, int y, int mass) {
     this.x = x;

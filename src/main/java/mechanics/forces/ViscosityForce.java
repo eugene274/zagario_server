@@ -11,6 +11,6 @@ import utils.MathVector;
 public class ViscosityForce implements Force {
     @Override
     public MathVector force(Cell cell) {
-        return cellSpeed(cell).scale(1.0/MechanicConstants.VISCOSITY_DECREMENT);
+        return cellSpeed(cell).scale(0.1*cell.getRadius()/MechanicConstants.VISCOSITY_DECREMENT);
     }
 }

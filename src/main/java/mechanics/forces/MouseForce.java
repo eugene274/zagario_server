@@ -1,6 +1,7 @@
 package mechanics.forces;
 
 import mechanics.Force;
+import mechanics.MechanicConstants;
 import model.Cell;
 import utils.MathVector;
 
@@ -18,6 +19,6 @@ public class MouseForce implements Force {
 
     @Override
     public MathVector force(Cell cell) {
-        return new MathVector(new double[]{vX, vY});
+        return new MathVector(new double[]{vX, vY}).scale(MechanicConstants.MOUSE_FORCE_SCALING);
     }
 }

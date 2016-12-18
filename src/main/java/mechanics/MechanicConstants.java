@@ -17,10 +17,13 @@ public interface MechanicConstants {
 
     float EJECT_SPEED = 18f;
 
-    float VISCOSITY_DECREMENT = 1000f; // milliseconds
-    float ATTRACTION_DECREMENT = 30_000f;
+    float VISCOSITY_DECREMENT = 100f; // milliseconds
+    float ATTRACTION_DECREMENT = 300f;
     float VISCOSITY_SCALING = 100f;
-    float RETURNING_FORCE = 50f;
+    float RETURNING_FORCE = 100f;
+
+    float MOUSE_FORCE_SCALING = 1.0f;
+    float TIME_SCALE = 2f;
 
 
 }

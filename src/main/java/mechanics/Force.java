@@ -13,7 +13,7 @@ public interface Force {
     }
 
     default MathVector cellSpeed(Cell cell){
-        return new MathVector(new double[]{cell.getSpeedX(),cell.getSpeedY()});
+        return cell.getSpeed();
     }
 
     MathVector force(Cell cell);

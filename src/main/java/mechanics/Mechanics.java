@@ -60,8 +60,12 @@ public class Mechanics extends Service implements Tickable {
   }
 
   private static void computeCoordinates(Cell cell, float dt){
-    cell.setX(cell.getX() + (int)(cell.getSpeedX()*dt));
-    cell.setY(cell.getY() + (int)(cell.getSpeedY()*dt));
+    cell.setX(cell.getX() + (int)(cell.getSpeed().cartesian(0)*dt));
+    cell.setY(cell.getY() + (int)(cell.getSpeed().cartesian(1)*dt));
+  }
+
+  private static void computeSpeed(Cell cell, MathVector force, float dt){
+    cell.setSpeed(cell.getSpeed().plus(force.scale(dt)));
   }
 
   private static float getViscosityDecrement(Cell cell){
@@ -72,7 +76,7 @@ public class Mechanics extends Service implements Tickable {
 
   @Override
   public void tick(long elapsedNanos) {
-    float dT = elapsedNanos/1000_000f;
+    float dT = TIME_SCALE*elapsedNanos/1000_000f;
     log.debug("DT =  " + dT + " millis");
 
     //TODO mechanics
@@ -85,7 +89,8 @@ public class Mechanics extends Service implements Tickable {
 
 
       for (Cell cell : gs.getField().getFreeCells()){
-        decrementSpeed(cell, dT);
+        MathVector force = returningForce.force(cell).minus(viscosityForce.force(cell));
+        computeSpeed(cell, force, dT);
         computeCoordinates(cell, dT);
       }
 
@@ -127,16 +132,26 @@ public class Mechanics extends Service implements Tickable {
                 decrementSpeed(cell, dT);
               }
               else {
-                MathVector force = mouseForce.force(cell).plus(attractionForce.force(cell).minus(viscosityForce.force(cell)));
+                MathVector force = returningForce.force(cell).plus(
+                        mouseForce.force(cell).plus(
+                                attractionForce.force(cell).minus(
+                                  viscosityForce.force(cell))));
                 // returning force
 //                float rfX = (float) (- RETURNING_FORCE*pow(cell.getX() - gs.getField().getWidth()/2f,3.0)/pow(gs.getField().getWidth(), 4.0));
 //                float rfY = (float) (- RETURNING_FORCE*pow(cell.getY() - gs.getField().getHeight()/2f,3.0)/pow(gs.getField().getHeight(), 4.0));
 
-                float speedX = (float) (cell.getSpeedX() + 10*dT*force.cartesian(0));
-                float speedY = (float) (cell.getSpeedY() + 10*dT*force.cartesian(1));
+                float speedX = (float) (cell.getSpeedX() + dT*force.cartesian(0));
+                float speedY = (float) (cell.getSpeedY() + dT*force.cartesian(1));
 
-                cell.setSpeedX((abs(speedX) > MAXIMAL_SPEED)? Math.signum(speedX)*MAXIMAL_SPEED : speedX);
-                cell.setSpeedY((abs(speedY) > MAXIMAL_SPEED)? Math.signum(speedY)*MAXIMAL_SPEED : speedY);
+//                MathVector speed = cell.getSpeed().plus(force.scale(dT));
+//
+////                if(speed.magnitude() > MAXIMAL_SPEED){
+////                  speed = speed.direction().scale(MAXIMAL_SPEED);
+////                }
+//
+//                cell.setSpeed(speed);
+
+                computeSpeed(cell, force, dT);
               }
 
               computeCoordinates(cell, dT);
@@ -175,8 +190,7 @@ public class Mechanics extends Service implements Tickable {
                 int y = cell.getY();
 
                 Cell ejectedCell = new PlayerCell(-1, x, y);
-                ejectedCell.setSpeedX(2*cell.getSpeedX());
-                ejectedCell.setSpeedY(2*cell.getSpeedY());
+                ejectedCell.setSpeed(cell.getSpeed().direction().scale(EJECT_SPEED));
                 ejectedCell.setMass(EJECTED_MASS);
 
                 gs.getField().setFreeCells(ejectedCell);
@@ -236,18 +250,15 @@ public class Mechanics extends Service implements Tickable {
         int initMass = cell.getMass();
         if (initMass >= 2*MINIMAL_MASS) {
           float angle = (float) (2*Math.PI*Math.random());
-          float dVx = (float)(SPLIT_SPEED*cos(angle));
-          float dVy = (float)(SPLIT_SPEED*sin(angle));
+          MathVector direction = new MathVector(new double[] {cos(angle),sin(angle)});
           int halfMass = round(initMass/2);
           cell.setMass(halfMass);
-          cell.setSpeedX(cell.getSpeedX() + dVx);
-          cell.setSpeedY(cell.getSpeedY() + dVy);
+          cell.setSpeed(cell.getSpeed().plus(direction.scale(SPLIT_SPEED)));
 
           PlayerCell newCell = new PlayerCell(player.getId(),cell.getX(), cell.getY());
           newCell.setMass(halfMass);
           player.addCell(newCell);
-          newCell.setSpeedX(cell.getSpeedX() - dVx);
-          newCell.setSpeedY(cell.getSpeedY() - dVy);
+          newCell.setSpeed(cell.getSpeed().minus(direction.scale(SPLIT_SPEED)));
         }
       }
 
