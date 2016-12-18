@@ -118,9 +118,9 @@ public class Mechanics extends Service implements Tickable {
                                             viscosityForce.force(cell)))));
 
             computeSpeed(cell, force, dT);
-            if(cell.getSpeed().magnitude() > MAXIMAL_SPEED){
-              cell.setSpeed(cell.getSpeed().direction().scale(MAXIMAL_SPEED));
-            }
+//            if(cell.getSpeed().magnitude() > MAXIMAL_SPEED){
+//              cell.setSpeed(cell.getSpeed().direction().scale(MAXIMAL_SPEED));
+//            }
 
             computeCoordinates(cell, dT);
 
