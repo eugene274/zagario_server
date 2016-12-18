@@ -32,7 +32,7 @@ public class Mechanics extends Service implements Tickable {
   @NotNull
   private final static Logger log = LogManager.getLogger(Mechanics.class);
   @NotNull
-  private final Map<Integer,Float[]> playerMoves = new HashMap<>();
+  private final Map<Player,Force> playerMoves = new HashMap<>();
   @NotNull
   private final List<Integer> playerEject = new ArrayList<>();
   @NotNull
@@ -51,24 +51,14 @@ public class Mechanics extends Service implements Tickable {
     ticker.loop();
   }
 
-  private static void decrementSpeed(Cell cell, float dt){
-    cell.setSpeedX( (abs(cell.getSpeedX()) > MINIMAL_SPEED)? cell.getSpeedX()*(1 - dt*VISCOSITY_SCALING/getViscosityDecrement(cell)) : 0.0f );
-    cell.setSpeedY( (abs(cell.getSpeedY()) > MINIMAL_SPEED)? cell.getSpeedY()*(1 - dt*VISCOSITY_SCALING/getViscosityDecrement(cell)) : 0.0f );
-  }
-
   private static void computeCoordinates(Cell cell, float dt){
-    cell.setX(cell.getX() + (int)(cell.getSpeed().cartesian(0)*dt));
-    cell.setY(cell.getY() + (int)(cell.getSpeed().cartesian(1)*dt));
+    cell.setX((int) Math.ceil(cell.getX() + cell.getSpeed().cartesian(0)*dt));
+    cell.setY((int) Math.ceil(cell.getY() + cell.getSpeed().cartesian(1)*dt));
   }
 
   private static void computeSpeed(Cell cell, MathVector force, float dt){
     cell.setSpeed(cell.getSpeed().plus(force.scale(dt)));
   }
-
-  private static float getViscosityDecrement(Cell cell){
-    return VISCOSITY_DECREMENT*10/cell.getRadius();
-  }
-
   Force viscosityForce = new ViscosityForce();
 
   @Override
@@ -99,51 +89,43 @@ public class Mechanics extends Service implements Tickable {
         Force attractionForce = new AttractionForce(player.getCells());
         Force repulsionForce = new RepulsionForce(player.getCells());
 
-        if(playerMoves.containsKey(player.getId())){
-          float vX = playerMoves.get(player.getId())[0]; // [ dx/millis ]
-          float vY = playerMoves.get(player.getId())[1]; // [ dy/millis ]
-
-          Force mouseForce = new MouseForce(vX,vY);
-
-          log.debug(String.format("MOVING PLAYER '%s' TO (%f,%f)",player.getName(),vX,vY));
+        Force mouseForce = playerMoves.getOrDefault(player,new NoForce());
 
 
-          for (Cell cell : player.getCells()){
+        for (Cell cell : player.getCells()){
+          MathVector force = returningForce.force(cell).plus(
+                  repulsionForce.force(cell).plus(
+                          mouseForce.force(cell).plus(
+                                  attractionForce.force(cell).minus(
+                                          viscosityForce.force(cell)))));
 
-
-            MathVector force = returningForce.force(cell).plus(
-                    repulsionForce.force(cell).plus(
-                            mouseForce.force(cell).plus(
-                                    attractionForce.force(cell).minus(
-                                            viscosityForce.force(cell)))));
-
-            computeSpeed(cell, force, dT);
+          computeSpeed(cell, force, dT);
 //            if(cell.getSpeed().magnitude() > MAXIMAL_SPEED){
 //              cell.setSpeed(cell.getSpeed().direction().scale(MAXIMAL_SPEED));
 //            }
 
-            computeCoordinates(cell, dT);
+          computeCoordinates(cell, dT);
 
 
-            // eating food
-            for(Cell food : new HashSet<>(gs.getField().getFoods())){
-              if(food.distance(cell) <= Math.abs(cell.getRadius())){
-                cell.setMass(cell.getMass() + food.getMass());
-                log.debug("PLAYER " + player + " eat food");
-                gs.getField().getFoods().remove(food);
-              }
+          // eating food
+          for(Cell food : new HashSet<>(gs.getField().getFoods())){
+            if(food.distance(cell) <= Math.abs(cell.getRadius())){
+              cell.setMass(cell.getMass() + food.getMass());
+              log.debug("PLAYER " + player + " eat food");
+              gs.getField().getFoods().remove(food);
             }
+          }
 
-            // eating freeCell
-            for(Cell freeCell : new ArrayList<>(gs.getField().getFreeCells())) {
-              if (freeCell.distance(cell) <= Math.abs(cell.getRadius())) {
-                cell.setMass(cell.getMass() + freeCell.getMass());
-                log.debug("PLAYER " + player + " eat free cell");
-                gs.getField().getFreeCells().remove(freeCell);
-              }
+          // eating freeCell
+          for(Cell freeCell : new ArrayList<>(gs.getField().getFreeCells())) {
+            if (freeCell.distance(cell) <= Math.abs(cell.getRadius())) {
+              cell.setMass(cell.getMass() + freeCell.getMass());
+              log.debug("PLAYER " + player + " eat free cell");
+              gs.getField().getFreeCells().remove(freeCell);
             }
           }
         }
+
 
         // eject
         if (playerEject.contains(player.getId())) {
@@ -188,14 +170,9 @@ public class Mechanics extends Service implements Tickable {
   }
 
   public void move(Player player, float dx, float dy){
-    Float[] move = playerMoves.get(player.getId());
-    if(move == null){
-      playerMoves.put(player.getId(), new Float[]{dx,dy});
+    if(!playerMoves.containsKey(player)){
+      playerMoves.put(player, new MouseForce(dx, dy));
     }
-    else {
-      move[0] = dx; move[1] = dy;
-    }
-    log.debug(player + " is about to move");
   }
 
   public void eject(Player player){

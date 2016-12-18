@@ -22,8 +22,8 @@ public class ReturningForce implements Force {
 
     @Override
     public MathVector force(Cell cell) {
-        double rfX = - RETURNING_FORCE*pow( cell.getX() - width/2f,5.0)/pow(width, 6.0);
-        double rfY = - RETURNING_FORCE*pow( cell.getY() - height/2f,5.0)/pow(height, 6.0);
+        double rfX = - RETURNING_FORCE*pow( cell.getX() - width/2f,3.0)/pow(width, 4.0);
+        double rfY = - RETURNING_FORCE*pow( cell.getY() - height/2f,3.0)/pow(height, 4.0);
         return new MathVector(new double[]{rfX, rfY});
     }
 }
