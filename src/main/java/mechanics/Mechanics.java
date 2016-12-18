@@ -73,8 +73,7 @@ public class Mechanics extends Service implements Tickable {
 
       gs.getFoodGenerator().tick(elapsedNanos);
       log.debug("FOOD " + gs.getField().getFoods().size());
-      gs.getVirusGenerator().generate();
-      log.debug("VIRUSES " + gs.getField().getViruses());
+
 
       for (Cell cell : gs.getField().getFreeCells()){
         decrementSpeed(cell, dT);
