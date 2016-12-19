@@ -10,7 +10,7 @@ public interface GameConstants {
   int FOOD_MASS = 10;
   int DEFAULT_PLAYER_CELL_MASS = 40;
   // TODO: return - int VIRUS_MASS = 100;
-  int VIRUS_MASS = 30; // for test
+  int VIRUS_MASS = 20; // for test
   int FOOD_PER_SECOND_GENERATION = 1;
   int MAX_FOOD_ON_FIELD = 10;
   // TODO: return - int NUMBER_OF_VIRUSES = 10;

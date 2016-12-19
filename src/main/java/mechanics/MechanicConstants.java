@@ -17,7 +17,7 @@ public interface MechanicConstants {
 
     float EJECT_SPEED = 18f;
 
-    float VISCOSITY_DECREMENT = 1f; // milliseconds
+    float VISCOSITY_DECREMENT = 2f; // milliseconds
     float ATTRACTION_DECREMENT = 300f;
     float RETURNING_FORCE = 10f;
 

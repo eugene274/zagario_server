@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import ticker.Tickable;
 import ticker.Ticker;
+import utils.EatComparator;
 import utils.MathVector;
 import utils.Timer;
 
@@ -32,12 +33,6 @@ public class Mechanics extends Service implements Tickable {
   private final Map<Player,Force> playerMoves = new HashMap<>();
   @NotNull
   private final List<Integer> playerEject = new ArrayList<>();
-  @NotNull
-  private final Map<Player, utils.Timer> playerSplitTimers = new HashMap<>();
-  @NotNull
-  private final Map<Player, PlayerCell> cellToAdd = new HashMap<>();
-  @NotNull
-  private final Map<Player, Cell> cellToRemove = new HashMap<>();
   @NotNull
   private final List<Virus> virusToRemove = new ArrayList<>();
 
@@ -60,7 +55,7 @@ public class Mechanics extends Service implements Tickable {
   private static void computeSpeed(Cell cell, MathVector force, float dt){
     cell.setSpeed(cell.getSpeed().plus(force.scale(dt)));
   }
-  Force viscosityForce = new ViscosityForce();
+  private Force viscosityForce = new ViscosityForce();
 
   @Override
   public void tick(long elapsedNanos) {
@@ -69,6 +64,9 @@ public class Mechanics extends Service implements Tickable {
 
     //TODO mechanics
     for (GameSession gs : ApplicationContext.instance().get(IMatchMaker.class).getActiveGameSessions()){
+      TreeSet<Cell> viruses = new TreeSet<>(new EatComparator());
+      viruses.addAll(gs.getField().getViruses());
+
       Force returningForce = new ReturningForce(gs.getField());
 
       // Remove viruses
@@ -76,12 +74,12 @@ public class Mechanics extends Service implements Tickable {
       virusToRemove.clear();
 
       // Add cells
-      cellToAdd.forEach((player, cell) -> player.addCell(cell));
-      cellToAdd.clear();
+//      cellToAdd.forEach((player, cell) -> player.addCell(cell));
+//      cellToAdd.clear();
 
       // Remove cells
-      cellToRemove.forEach((player, cell) -> player.removeCell(cell));
-      cellToRemove.clear();
+//      cellToRemove.forEach((player, cell) -> player.removeCell(cell));
+//      cellToRemove.clear();
 
       gs.getFoodGenerator().tick(elapsedNanos);
       log.debug("FOOD " + gs.getField().getFoods().size());
@@ -101,8 +99,10 @@ public class Mechanics extends Service implements Tickable {
 
         Force mouseForce = playerMoves.getOrDefault(player,new NoForce());
 
+        HashSet<PlayerCell> retainingCells = new HashSet<>(player.getCells());
+        HashSet<PlayerCell> cellsToAdd = new HashSet<>();
 
-        for (Cell cell : player.getCells()){
+        for (PlayerCell cell : player.getCells()){
           MathVector force = returningForce.force(cell).plus(
                   repulsionForce.force(cell).plus(
                           mouseForce.force(cell).plus(
@@ -133,58 +133,64 @@ public class Mechanics extends Service implements Tickable {
               log.debug("PLAYER " + player + " eat free cell");
               gs.getField().getFreeCells().remove(freeCell);
             }
+          }
 
-            // interact with virus
-            if (cell.getMass() >= 1.2 * GameConstants.VIRUS_MASS) {
-              for (Virus virus : gs.getField().getViruses()) {
-                if (cell.distance(virus) <= cell.getRadius() + virus.getRadius()) {
-                  int halfMass = cell.getMass() / 2;
+          // interact with viruses
+          for (Cell virus : viruses.headSet(cell)){
 
-                  cell.setMass(halfMass);
+            if (cell.distance(virus) <= cell.getRadius() + virus.getRadius()) {
+              int halfMass = cell.getMass() / 2;
 
-                  float angle = (float) (2*Math.PI*Math.random());
-                  float dVx = (float)(SPLIT_SPEED*cos(angle));
-                  float dVy = (float)(SPLIT_SPEED*sin(angle));
+                cell.setMass(halfMass);
 
-                  PlayerCell newCell = new PlayerCell(player.getId(), cell.getX(), cell.getY());
-                  newCell.setMass(halfMass);
-                  newCell.setSpeedX(cell.getSpeedX() - dVx);
-                  newCell.setSpeedY(cell.getSpeedY() - dVy);
+                float angle = (float) (2*Math.PI*Math.random());
+                float dVx = (float)(SPLIT_SPEED*cos(angle));
+                float dVy = (float)(SPLIT_SPEED*sin(angle));
 
-                  cellToAdd.put(player, newCell);
-                  virusToRemove.add(virus);
-                }
-              }
-            }
+                PlayerCell newCell = new PlayerCell(player.getId(), cell.getX(), cell.getY());
+                newCell.setMass(halfMass);
+                newCell.setSpeed(cell.getSpeed().minus(new MathVector(new double[]{dVx,dVy})));
 
-            // Collapse cells
-            for (Cell anotherCell : new ArrayList<>(player.getCells())) {
-                if ((cell != anotherCell ) && !cellToRemove.containsValue(anotherCell)
-                        && !cellToRemove.containsValue(cell)) {
-                    if (cell.distance(anotherCell) <= 0.5 * (cell.getRadius() + anotherCell.getRadius())) {
-                        cellToRemove.put(player, anotherCell);
-                        cell.setMass(anotherCell.getMass() + cell.getMass());
-                    }
-                }
+//                cellToAdd.put(player, newCell);
+                virusToRemove.add((Virus) virus);
+
+                cellsToAdd.add(newCell);
             }
           }
 
-          // Interact with another players
-          for (Player anotherPlayer : gs.getPlayers()) {
-            if (anotherPlayer != player) {
-              for (Cell eachCell : player.getCells()) {
-                for(Cell anotherCell : anotherPlayer.getCells()) {
-                  if (eachCell.distance(anotherCell) <= 0.8 * (eachCell.getRadius() + anotherCell.getRadius())) {
-                    if (eachCell.getMass() >= 1.2 * anotherCell.getMass()) {
-                      eachCell.setMass(eachCell.getMass() + anotherCell.getMass());
-                      cellToRemove.put(anotherPlayer, anotherCell);
-                    }
-                  }
-                }
+          // Collapse cells
+          for (PlayerCell anotherCell : new HashSet<>(retainingCells)) {
+            if (cell != anotherCell) {
+              if (cell.distance(anotherCell) <= 0.5 * (cell.getRadius() + anotherCell.getRadius())) {
+//                cellToRemove.put(player, anotherCell);
+                cell.eat(anotherCell);
+                retainingCells.remove(anotherCell);
               }
             }
           }
+
+          // interaction with opponents
+          TreeMap<PlayerCell, Player> opCells = new TreeMap<>(new EatComparator());
+          HashSet<Player> opponents = new HashSet<>(gs.getPlayers());
+          opponents.remove(player);
+
+          for (Player opponent : opponents){
+            for (PlayerCell opCell : opponent.getCells()){
+              opCells.put(opCell, opponent);
+            }
+          }
+
+          for( Map.Entry<PlayerCell, Player> opCell : opCells.headMap(cell).entrySet()){
+            if(cell.distance(opCell.getKey()) <= cell.getRadius() + opCell.getKey().getRadius()) {
+              cell.eat(opCell.getKey());
+              opCell.getValue().getCells().remove(opCell.getKey());
+            }
+          }
+
         }
+
+        player.getCells().retainAll(retainingCells);
+        player.getCells().addAll(cellsToAdd);
 
 
         // eject
@@ -246,8 +252,9 @@ public class Mechanics extends Service implements Tickable {
     log.debug(player + " is about to eject");
   }
 
-  public void split(Player player){
+  public HashSet<PlayerCell> split(Player player){
     log.debug(player + " is about to split");
+    HashSet<PlayerCell> emittedCells = new HashSet<>();
 
     for (Cell cell : new ArrayList<>(player.getCells())) {
       int initMass = cell.getMass();
@@ -264,7 +271,10 @@ public class Mechanics extends Service implements Tickable {
         player.addCell(newCell);
         newCell.setSpeed(cell.getSpeed().minus(direction.scale(SPLIT_SPEED)));
         newCell.setRepulsionForce(new RepulsionForce(newCell));
+
+        emittedCells.add(newCell);
       }
     }
+    return emittedCells;
   }
 }
