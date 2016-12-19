@@ -35,6 +35,8 @@ public class Mechanics extends Service implements Tickable {
   @NotNull
   private final Map<Player, PlayerCell> cellToAdd = new HashMap<>();
   @NotNull
+  private final Map<Player, Cell> cellToRemove = new HashMap<>();
+  @NotNull
   private final List<Virus> virusToRemove = new ArrayList<>();
 
   public Mechanics() {
@@ -77,6 +79,10 @@ public class Mechanics extends Service implements Tickable {
       // Add cells
       cellToAdd.forEach((player, cell) -> player.addCell(cell));
       cellToAdd.clear();
+
+      // Remove cells
+      cellToRemove.forEach((player, cell) -> player.removeCell(cell));
+      cellToRemove.clear();
 
       gs.getFoodGenerator().tick(elapsedNanos);
       log.debug("FOOD " + gs.getField().getFoods().size());
@@ -173,6 +179,17 @@ public class Mechanics extends Service implements Tickable {
                 }
               }
             }
+
+            // Collapse cells
+            for (Cell anotherCell : new ArrayList<>(player.getCells())) {
+                if ((cell != anotherCell ) && !cellToRemove.containsValue(anotherCell)
+                        && !cellToRemove.containsValue(cell)) {
+                    if (cell.distance(anotherCell) <= 0.5 * (cell.getRadius() + anotherCell.getRadius())) {
+                        cellToRemove.put(player, anotherCell);
+                        cell.setMass(anotherCell.getMass() + cell.getMass());
+                    }
+                }
+            }
           }
         }
 
@@ -215,6 +232,8 @@ public class Mechanics extends Service implements Tickable {
 //    playerSplit.clear();
     playerEject.clear();
     playerMoves.clear();
+
+
 
     // execute all messages from queue
     messageSystem.execForService(this);
