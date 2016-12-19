@@ -50,9 +50,10 @@ public class AccountServer extends Service {
       LOG.info(String.format("server started at %d", port));
       jettyServer.join();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      LOG.fatal("Account server unexpectedly interrupted: " + e.getMessage());
+      System.exit(1);
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.fatal(e.getMessage());
       System.exit(1);
     }
 
@@ -60,7 +61,7 @@ public class AccountServer extends Service {
       try {
         ApplicationContext.instance().get(MessageSystem.class).execOneForService(this);
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        LOG.fatal("Account server unexpectedly interrupted: " + e.getMessage());
         return;
       }
     }
