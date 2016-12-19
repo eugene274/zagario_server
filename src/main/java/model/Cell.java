@@ -1,6 +1,8 @@
 package model;
 
+import mechanics.forces.RepulsionForce;
 import utils.IDGenerator;
+import utils.MathVector;
 import utils.SequentialIDGenerator;
 
 /**
@@ -18,6 +20,26 @@ public abstract class Cell {
 
   private float speedX;
   private float speedY;
+
+  private MathVector speed = new MathVector(2);
+
+  private RepulsionForce repulsionForce;
+
+  public RepulsionForce getRepulsionForce() {
+    return repulsionForce;
+  }
+
+  public void setRepulsionForce(RepulsionForce repulsionForce) {
+    this.repulsionForce = repulsionForce;
+  }
+
+  public MathVector getSpeed() {
+    return speed;
+  }
+
+  public void setSpeed(MathVector speed) {
+    this.speed = speed;
+  }
 
   public Cell(int x, int y, int mass) {
     this.x = x;
