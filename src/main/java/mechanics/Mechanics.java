@@ -6,10 +6,7 @@ import matchmaker.IMatchMaker;
 import messageSystem.Message;
 import messageSystem.MessageSystem;
 import messageSystem.messages.ReplicateMsg;
-import model.Cell;
-import model.GameSession;
-import model.Player;
-import model.PlayerCell;
+import model.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -34,9 +31,11 @@ public class Mechanics extends Service implements Tickable {
   @NotNull
   private final List<Integer> playerEject = new ArrayList<>();
   @NotNull
-  private final List<Integer> playerSplit = new ArrayList<>();
-  @NotNull
   private final Map<Player, utils.Timer> playerSplitTimers = new HashMap<>();
+  @NotNull
+  private final Map<Player, PlayerCell> cellToAdd = new HashMap<>();
+  @NotNull
+  private final List<Virus> virusToRemove = new ArrayList<>();
 
   public Mechanics() {
     super("mechanics");
@@ -70,6 +69,14 @@ public class Mechanics extends Service implements Tickable {
 
     //TODO mechanics
     for (GameSession gs : ApplicationContext.instance().get(IMatchMaker.class).getActiveGameSessions()){
+
+      // Remove viruses
+      virusToRemove.forEach(virus -> gs.getField().getViruses().remove(virus));
+      virusToRemove.clear();
+
+      // Add cells
+      cellToAdd.forEach((player, cell) -> player.addCell(cell));
+      cellToAdd.clear();
 
       gs.getFoodGenerator().tick(elapsedNanos);
       log.debug("FOOD " + gs.getField().getFoods().size());
@@ -143,6 +150,29 @@ public class Mechanics extends Service implements Tickable {
                 gs.getField().getFreeCells().remove(freeCell);
               }
             }
+
+            // interact with virus
+            if (cell.getMass() >= 1.2 * GameConstants.VIRUS_MASS) {
+              for (Virus virus : gs.getField().getViruses()) {
+                if (cell.distance(virus) <= cell.getRadius() + virus.getRadius()) {
+                  int halfMass = cell.getMass() / 2;
+
+                  cell.setMass(halfMass);
+
+                  float angle = (float) (2*Math.PI*Math.random());
+                  float dVx = (float)(SPLIT_SPEED*cos(angle));
+                  float dVy = (float)(SPLIT_SPEED*sin(angle));
+
+                  PlayerCell newCell = new PlayerCell(player.getId(), cell.getX(), cell.getY());
+                  newCell.setMass(halfMass);
+                  newCell.setSpeedX(cell.getSpeedX() - dVx);
+                  newCell.setSpeedY(cell.getSpeedY() - dVy);
+
+                  cellToAdd.put(player, newCell);
+                  virusToRemove.add(virus);
+                }
+              }
+            }
           }
         }
 
@@ -182,10 +212,11 @@ public class Mechanics extends Service implements Tickable {
     log.info("Start replication");
     messageSystem.sendMessage(replicateMsg);
 
-    playerSplit.clear();
+//    playerSplit.clear();
     playerEject.clear();
     playerMoves.clear();
-    //execute all messages from queue
+
+    // execute all messages from queue
     messageSystem.execForService(this);
   }
 
@@ -209,10 +240,6 @@ public class Mechanics extends Service implements Tickable {
   }
 
   public void split(Player player){
-    int id = player.getId();
-    if (!playerSplit.contains(id)) {
-        playerSplit.add(id);
-    }
     log.debug(player + " is about to split");
 
     if (!playerSplitTimers.containsKey(player) || playerSplitTimers.get(player).isExpired()){
