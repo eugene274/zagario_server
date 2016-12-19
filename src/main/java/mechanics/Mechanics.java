@@ -191,6 +191,22 @@ public class Mechanics extends Service implements Tickable {
                 }
             }
           }
+
+          // Interact with another players
+          for (Player anotherPlayer : gs.getPlayers()) {
+            if (anotherPlayer != player) {
+              for (Cell eachCell : player.getCells()) {
+                for(Cell anotherCell : anotherPlayer.getCells()) {
+                  if (eachCell.distance(anotherCell) <= 0.8 * (eachCell.getRadius() + anotherCell.getRadius())) {
+                    if (eachCell.getMass() >= 1.2 * anotherCell.getMass()) {
+                      eachCell.setMass(eachCell.getMass() + anotherCell.getMass());
+                      cellToRemove.put(anotherPlayer, anotherCell);
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
 
         // eject
