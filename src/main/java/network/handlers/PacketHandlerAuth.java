@@ -2,7 +2,8 @@ package network.handlers;
 
 import accountserver.TokenService;
 import main.ApplicationContext;
-import matchmaker.IMatchMaker;
+import messageSystem.MessageSystem;
+import messageSystem.messages.JoinPlayerMsg;
 import model.Player;
 import network.ClientConnections;
 import network.packets.PacketAuthFail;
@@ -35,7 +36,7 @@ public class PacketHandlerAuth {
         Player player = new Player(Player.idGenerator.next(), commandAuth.getLogin());
         ApplicationContext.instance().get(ClientConnections.class).registerConnection(player, session);
         new PacketAuthOk(player.getId()).write(session);
-        ApplicationContext.instance().get(IMatchMaker.class).joinGame(player);
+        ApplicationContext.instance().get(MessageSystem.class).sendMessage(new JoinPlayerMsg(player));
       } catch (IOException e) {
         e.printStackTrace();
       }
