@@ -30,6 +30,7 @@ public class RandomVirusGenerator implements VirusGenerator {
           virusRadius + random.nextInt(field.getWidth() - 2 * virusRadius),
           virusRadius + random.nextInt(field.getHeight() - 2 * virusRadius)
       );
+      field.getViruses().add(virus);
     }
   }
 }

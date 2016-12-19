@@ -24,7 +24,7 @@ public class GameSessionImpl implements GameSession {
   @NotNull
   private final VirusGenerator virusGenerator;
 
-  public GameSessionImpl(@NotNull Field field,@NotNull FoodGenerator foodGenerator, @NotNull PlayerPlacer playerPlacer, @NotNull VirusGenerator virusGenerator) {
+  public GameSessionImpl(@NotNull Field field, @NotNull FoodGenerator foodGenerator, @NotNull PlayerPlacer playerPlacer, @NotNull VirusGenerator virusGenerator) {
     this.foodGenerator = foodGenerator;
     this.playerPlacer = playerPlacer;
     this.virusGenerator = virusGenerator;

@@ -33,6 +33,10 @@ public class Player {
     cells.remove(cell);
   }
 
+  public void removeCell(@NotNull Cell cell) {
+    cells.remove(cell);
+  }
+
   @NotNull
   public String getName() {
     return name;
